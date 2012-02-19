@@ -1,0 +1,12 @@
+obj/testcpp.o: src/testcpp.cpp include/testcpp/testcpp.h \
+  include/testcpp/detail/general/scoped_pointer.h \
+  include/testcpp/detail/general/release_assert.h \
+  include/testcpp/detail/general/declarations.h \
+  include/testcpp/StdOutView.h \
+  include/testcpp/detail/TextStreamTestView.h
+obj/main.o: test/src/main.cpp include/testcpp/testcpp.h \
+  include/testcpp/detail/general/scoped_pointer.h \
+  include/testcpp/detail/general/release_assert.h \
+  include/testcpp/detail/general/declarations.h \
+  include/testcpp/StdOutView.h \
+  include/testcpp/detail/TextStreamTestView.h
