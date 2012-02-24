@@ -14,11 +14,11 @@ framework:
   output to a GUI window) by implementing your own test observer; see
   `TextStreamTestView.h`_ for an example.
 
-``testcpp`` is `licenced under the MIT licence`_.
+``testcpp`` is `licenced under the Boost licence`_.
 
 **Status**: production/stable.
 
-**Be sure to pull in submodules after** ``git clone``::
+**Be sure to pull in submodules** after ``git clone``::
 
   git submodule init
   git submodule update
@@ -74,6 +74,6 @@ results in the following output::
 
 See `main test`_ for more details.
 
-.. _`licenced under the MIT licence`: https://github.com/mrts/testcpp/blob/master/LICENCE.rst
-.. _main test: https://github.com/mrts/testcpp/blob/master/test/src/main.cpp
+.. _`licenced under the Boost licence`: https://github.com/mrts/testcpp/blob/master/LICENCE.rst
+.. _`main test`: https://github.com/mrts/testcpp/blob/master/test/src/main.cpp
 .. _TextStreamTestView.h: https://github.com/mrts/testcpp/blob/master/include/testcpp/detail/TextStreamTestView.h
