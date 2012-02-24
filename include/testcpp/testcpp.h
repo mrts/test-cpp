@@ -14,8 +14,8 @@
 #ifndef TESTCPP_H__
 #define TESTCPP_H__
 
-#include <testcpp/detail/general/scoped_pointer.h>
-#include <testcpp/detail/general/declarations.h>
+#include <utilcpp/scoped_ptr.h>
+#include <utilcpp/declarations.h>
 
 #include <string>
 #include <memory>
@@ -34,7 +34,7 @@ namespace Test
  */
 class Suite
 {
-    TESTCPP_INTERFACE(Suite)
+    UTILCPP_DECLARE_INTERFACE(Suite)
 
 public:
     /** Implement this. */
@@ -55,7 +55,7 @@ public:
  */
 class Observer
 {
-    TESTCPP_INTERFACE(Observer)
+    UTILCPP_DECLARE_INTERFACE(Observer)
 
 public:
     virtual void onTestBegin(const std::string& testlabel,
@@ -91,7 +91,7 @@ void assertThrows(const std::string& label, void (*testfn)());
 /** The control class registers tests and controls execution. */
 class Controller
 {
-    TESTCPP_SINGLETON(Controller)
+    UTILCPP_DECLARE_SINGLETON(Controller)
 
 public:
     typedef std::auto_ptr<Suite> (*TestSuiteFactoryFunction)();
@@ -116,7 +116,7 @@ public:
     int run();
 
 private:
-    scoped_pointer<Observer> _observer;
+    utilcpp::scoped_ptr<Observer> _observer;
     std::map<std::string, TestSuiteFactoryFunction> _testFuncs;
 
     int _curTest;

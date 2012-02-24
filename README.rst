@@ -18,6 +18,11 @@ framework:
 
 **Status**: production/stable.
 
+**Be sure to pull in submodules after** ``git clone``::
+
+  git submodule init
+  git submodule update
+
 Usage
 -----
 

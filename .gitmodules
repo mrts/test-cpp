@@ -1,0 +1,3 @@
+[submodule "include/utilcpp"]
+	path = include/utilcpp
+	url = http://github.com/mrts/utilcpp
