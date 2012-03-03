@@ -1,10 +1,10 @@
 obj/testcpp.o: src/testcpp.cpp include/testcpp/testcpp.h \
-  include/utilcpp/scoped_ptr.h include/utilcpp/release_assert.h \
-  include/utilcpp/disable_copy.h include/utilcpp/declarations.h \
-  include/testcpp/StdOutView.h \
+  include/utilcpp/declarations.h include/utilcpp/scoped_ptr.h \
+  include/utilcpp/release_assert.h include/utilcpp/disable_copy.h \
+  include/testcpp/assert_impl.h include/testcpp/StdOutView.h \
   include/testcpp/detail/TextStreamTestView.h
 obj/main.o: test/src/main.cpp include/testcpp/testcpp.h \
-  include/utilcpp/scoped_ptr.h include/utilcpp/release_assert.h \
-  include/utilcpp/disable_copy.h include/utilcpp/declarations.h \
-  include/testcpp/StdOutView.h \
+  include/utilcpp/declarations.h include/utilcpp/scoped_ptr.h \
+  include/utilcpp/release_assert.h include/utilcpp/disable_copy.h \
+  include/testcpp/assert_impl.h include/testcpp/StdOutView.h \
   include/testcpp/detail/TextStreamTestView.h

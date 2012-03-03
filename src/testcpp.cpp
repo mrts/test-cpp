@@ -15,12 +15,15 @@ void assertTrue(const std::string &testlabel, bool ok)
     c._observer->onAssertEnd(ok);
 }
 
-void assertWontThrow(const std::string &testlabel, void (*testfn)())
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
+void assertWontThrow(const std::string &label,
+        std::function<void (void)> testFunction)
 {
     Controller &c = Controller::instance();
-    c._observer->onAssertNoExceptionBegin(testlabel);
+    c._observer->onAssertNoExceptionBegin(label);
     try {
-        testfn();
+        testFunction();
     } catch (const std::exception& e) {
         ++c._curTestErrs;
         c._observer->onAssertExceptionEnd(false, e.what());
@@ -33,6 +36,7 @@ void assertWontThrow(const std::string &testlabel, void (*testfn)())
 
     c._observer->onAssertEnd(true);
 }
+#endif
 
 Controller::Controller() :
     _observer(new StdOutView),
@@ -66,7 +70,7 @@ int Controller::run()
 
         try {
             // create the test instance and take ownership
-            utilcpp::scoped_ptr<Suite> test(i->second());
+            suite_scoped_ptr test(i->second());
             test->test();
             _observer->onTestEnd(_curTestErrs);
         } catch (const std::exception &e) {

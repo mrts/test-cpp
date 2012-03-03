@@ -14,16 +14,32 @@
 #ifndef TESTCPP_H__
 #define TESTCPP_H__
 
-#include <utilcpp/scoped_ptr.h>
 #include <utilcpp/declarations.h>
+#if !(defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L))
+  #include <utilcpp/scoped_ptr.h>
+#endif
 
 #include <string>
 #include <memory>
 #include <map>
 
-
 namespace Test
 {
+
+class Suite;
+class Observer;
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
+  typedef std::unique_ptr<Suite> suite_transferable_ptr;
+  typedef std::unique_ptr<Suite> suite_scoped_ptr;
+  typedef std::unique_ptr<Observer> observer_transferable_ptr;
+  typedef std::unique_ptr<Observer> observer_scoped_ptr;
+#else
+  typedef std::auto_ptr<Suite> suite_transferable_ptr;
+  typedef utilcpp::scoped_ptr<Suite> suite_scoped_ptr;
+  typedef std::auto_ptr<Observer> observer_transferable_ptr;
+  typedef utilcpp::scoped_ptr<Observer> observer_scoped_ptr;
+#endif
 
 /**
  * Inteface for test suites. Test suite is a collection of assert()s in the
@@ -42,9 +58,9 @@ public:
 
     /** Factory method for creating concrete testsuites. */
     template <class ConcreteSuiteType>
-    static std::auto_ptr<Suite> instance()
+    static suite_transferable_ptr instance()
     {
-        return std::auto_ptr<Suite>(new ConcreteSuiteType());
+        return suite_transferable_ptr(new ConcreteSuiteType());
     }
 };
 
@@ -83,10 +99,29 @@ template <typename CompareType>
 void assertEqual(const std::string& label,
         const CompareType& a, const CompareType& b);
 
-void assertWontThrow(const std::string& label, void (*testfn)());
-
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
+// use lambdas with C++11
 template <typename ExceptionType>
-void assertThrows(const std::string& label, void (*testfn)());
+void assertThrows(const std::string &label,
+        std::function<void (void)> testFunction);
+
+void assertWontThrow(const std::string &label,
+        std::function<void (void)> testFunction);
+
+#else
+template <class TestSuiteType,
+          typename TestMethodType,
+          typename ExceptionType>
+void assertThrows(const std::string &label,
+                  TestSuiteType& testSuiteObject,
+                  TestMethodType testFunction);
+
+template <class TestSuiteType,
+          typename TestMethodType>
+void assertWontThrow(const std::string &label,
+                  TestSuiteType& testSuiteObject,
+                  TestMethodType testFunction);
+#endif
 
 /** The control class registers tests and controls execution. */
 class Controller
@@ -94,7 +129,7 @@ class Controller
     UTILCPP_DECLARE_SINGLETON(Controller)
 
 public:
-    typedef std::auto_ptr<Suite> (*TestSuiteFactoryFunction)();
+    typedef suite_transferable_ptr (*TestSuiteFactoryFunction)();
 
     friend void assertTrue(const std::string &label, bool ok);
 
@@ -102,21 +137,43 @@ public:
     friend void assertEqual(const std::string& label,
             const CompareType& a, const CompareType& b);
 
-    friend void assertWontThrow(const std::string &label, void (*testfn)());
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
+    template <typename ExceptionType>
+    friend void assertThrows(const std::string &label,
+        std::function<void (void)> testFunction);
 
-    template <typename T>
-    friend void assertThrows(const std::string &label, void (*testfn)());
+    friend void assertWontThrow(const std::string &label,
+            std::function<void (void)> testFunction);
+
+#else
+    template <class TestSuiteType,
+              typename TestMethodType,
+              typename ExceptionType>
+    friend void assertThrows(const std::string &label,
+            TestSuiteType& testSuite, TestMethodType testFunction);
+
+    template <class TestSuiteType,
+              typename TestMethodType>
+    friend void assertWontThrow(const std::string &label,
+            TestSuiteType& testSuite, TestMethodType testFunction);
+#endif
 
     void addTestSuite(const std::string &label, TestSuiteFactoryFunction ffn)
     { _testFuncs[label] = ffn; }
 
-    void setObserver(std::auto_ptr<Observer> v)
-    { _observer = v; }
+    void setObserver(observer_transferable_ptr v)
+    {
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
+        _observer = std::move(v);
+#else
+        _observer = v;
+#endif
+    }
 
     int run();
 
 private:
-    utilcpp::scoped_ptr<Observer> _observer;
+    observer_scoped_ptr _observer;
     std::map<std::string, TestSuiteFactoryFunction> _testFuncs;
 
     int _curTest;
@@ -125,40 +182,8 @@ private:
     int _allTestExcepts;
 };
 
-
-template <typename ExceptionType>
-void assertThrows(const std::string &label, void (*testfn)())
-{
-    Controller& c = Controller::instance();
-
-    c._observer->onAssertExceptionBegin(label);
-
-    try {
-        testfn();
-    } catch (const ExceptionType& e) {
-        c._observer->onAssertExceptionEnd(true, e.what());
-        return;
-    }
-
-    ++c._curTestErrs;
-    c._observer->onAssertEnd(false);
-}
-
-template <typename CompareType>
-void assertEqual(const std::string& label,
-        const CompareType& a, const CompareType& b)
-{
-    Controller& c = Controller::instance();
-
-    c._observer->onAssertBegin(label);
-
-    bool ok = (a == b);
-
-    if (!ok)
-        ++c._curTestErrs;
-
-    c._observer->onAssertEnd(ok);
-}
+// include assert* implementation after Controller has been declared
+#include <testcpp/assert_impl.h>
 
 }
 

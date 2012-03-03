@@ -26,30 +26,37 @@ framework:
 Usage
 -----
 
-This input::
+In C++03 mode, this input::
 
   class TestSuite1 : public Test::Suite
   {
   public:
-      static void testException()
+      typedef void (TestSuite1::*TestMethod)();
+
+      void testException()
       { throw std::logic_error("exception message"); }
 
-      static void testNoException()
+      void testNoException()
       { int a = 1; ++a; }
 
       void test()
       {
           Test::assertTrue("1 + 1 == 2 is true",
                   1 + 1 == 2);
+
           Test::assertTrue("1 + 1 == 3 is true",
                   1 + 1 == 3); // fails
-          Test::assertThrows<std::logic_error>("throws std::logic_error",
-                  TestSuite1::testException);
-          Test::assertThrows<std::logic_error>("doesn't throw std::logic_error",
-                  TestSuite1::testNoException); // fails
-          testException(); // unhandled exception is caught, but stops the testsuite
 
-          Test::assertTrue("not reached", true);
+          Test::assertThrows<TestSuite1, TestMethod, std::logic_error>
+                  ("throws std::logic_error",
+                          *this, &TestSuite1::testException);
+
+          Test::assertThrows<TestSuite1, TestMethod, std::logic_error>
+                  ("doesn't throw std::logic_error",
+                          *this, &TestSuite1::testNoException); // fails
+
+          testException(); // unhandled exception is caught, but stops the testsuite
+          Test::assertTrue("not reached because of the previous exception", true);
       }
   };
 
@@ -71,6 +78,8 @@ results in the following output::
     Unhandled exception 'St11logic_error' with message: exception message
     FAIL due exception with 2 non-exception errors
   Total test suites run: 1, # of errors: 2, # of uncaught exceptions: 1
+
+Use lambdas in C++11 mode instead with exception-related asserts.
 
 See `main test`_ for more details.
 

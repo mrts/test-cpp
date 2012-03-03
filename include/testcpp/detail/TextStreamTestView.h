@@ -40,7 +40,7 @@ public:
                 << exceptionType << "'";
             if (!exceptionMsg.empty())
                 *this << " with message: " << exceptionMsg;
-            *this << END_LINE << TAB << "FAIL due exception with "
+            *this << END_LINE << TAB << "FAIL due to exception with "
                 << numErrs << " non-exception errors"
                 << END_LINE;
             return;

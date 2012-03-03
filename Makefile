@@ -6,7 +6,7 @@ TEST     = testcpp-test
 
 TARGET   = lib/lib$(LIBNAME).a
 
-DEBUG    = -g
+DEBUG    =
 COMPILER = clang++
 
 CXX      = $(COMPILER)
