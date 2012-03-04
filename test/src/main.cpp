@@ -82,43 +82,49 @@ public:
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
         // use lambdas with C++11
-        Test::assertWontThrow("object won't throw exceptions",
+        Test::assertWontThrow("won't throw exceptions",
                 [&] () { _object.instanceMethodNoException(); });
 
-        Test::assertThrows<std::logic_error>("throws std::logic_error",
+        Test::assertThrows<std::logic_error>("throws logic_error",
                 [&] () { _object.instanceMethodThrowsException(); });
 
-        Test::assertWontThrow("throws std::logic_error",
+        Test::assertWontThrow("throws logic_error",
                 [&] () { _object.instanceMethodThrowsException(); }); // fails
 
-        Test::assertThrows<std::logic_error>("doesn't throw std::logic_error",
+        Test::assertThrows<std::logic_error>("doesn't throw logic_error",
                 [&] () { _object.instanceMethodNoException(); }); // fails
+
+        // This assert fails as the exception thrown is not std::runtime_error.
+        Test::assertThrows<std::runtime_error>("throws logic_error instead of runtime_error",
+                [&] () { _object.instanceMethodThrowsException(); }); // fails
+
 #else
         // use method pointers and templates with C++03
         Test::assertWontThrow<TestSuite1, TestMethod>
-            ("object won't throw exceptions",
+            ("won't throw exceptions",
                 *this, &TestSuite1::testObjectWontThrow);
 
         Test::assertThrows<TestSuite1, TestMethod, std::logic_error>
-            ("throws std::logic_error",
+            ("throws logic_error",
                 *this, &TestSuite1::testObjectThrows);
 
         Test::assertWontThrow<TestSuite1, TestMethod>
-            ("throws std::logic_error",
+            ("throws logic_error",
                 *this, &TestSuite1::testObjectThrows); // fails
 
         Test::assertThrows<TestSuite1, TestMethod, std::logic_error>
-            ("doesn't throw std::logic_error",
+            ("doesn't throw logic_error",
                 *this, &TestSuite1::testObjectWontThrow); // fails
 
         // You can also use object-under-test methods directly.
         // This assert fails as the exception thrown is not std::runtime_error.
-        // The unhandled exception is caught, but stops the testsuite.
         Test::assertThrows<Object, Object::Method, std::runtime_error>
-            ("throws std::logic_error instead of std::runtime_error",
-                _object, &Object::instanceMethodThrowsException);
+            ("throws logic_error instead of runtime_error",
+                _object, &Object::instanceMethodThrowsException); // fails
 #endif
 
+        // The unhandled exception is caught, but stops the testsuite.
+        testObjectThrows();
         Test::assertTrue("not reached because of "
                 "the previous unhandled exception", true);
     }

@@ -47,13 +47,27 @@ In C++03 mode, this input::
           Test::assertTrue("1 + 1 == 3 is true",
                   1 + 1 == 3); // fails
 
+          Test::assertEqual<int>("1 + 1 equals 2",
+                  1 + 1, 2);
+
+          Test::assertEqual<int>("1 + 1 equals 3",
+                  1 + 1, 3); // fails
+
           Test::assertThrows<TestSuite1, TestMethod, std::logic_error>
-                  ("throws std::logic_error",
+                  ("throws logic_error",
                           *this, &TestSuite1::testException);
 
           Test::assertThrows<TestSuite1, TestMethod, std::logic_error>
-                  ("doesn't throw std::logic_error",
+                  ("doesn't throw logic_error",
                           *this, &TestSuite1::testNoException); // fails
+
+          Test::assertWontThrow<TestSuite1, TestMethod>
+                  ("doesn't throw any exceptions",
+                          *this, &TestSuite1::testNoException);
+
+          Test::assertWontThrow<TestSuite1, TestMethod>
+                  ("throws logic_error",
+                          *this, &TestSuite1::testException); // fails
 
           testException(); // unhandled exception is caught, but stops the testsuite
           Test::assertTrue("not reached because of the previous exception", true);
@@ -73,11 +87,15 @@ results in the following output::
   Test suite 'testsuite1' (#1/1):
     test '1 + 1 == 2 is true': ... OK
     test '1 + 1 == 3 is true': ... FAIL
-    test exception 'throws std::logic_error': ... OK
-    test exception 'doesn't throw std::logic_error': ... FAIL
+    test '1 + 1 equals 2': ... OK
+    test '1 + 1 equals 3': ... FAIL
+    test exception 'throws logic_error': ... OK
+    test exception 'doesn't throw logic_error': ... FAIL
+    test no exception 'doesn't throw any exceptions': ... OK
+    test no exception 'throws logic_error': ... FAIL: unexpected exception St11logic_error: exception message
     Unhandled exception 'St11logic_error' with message: exception message
-    FAIL due exception with 2 non-exception errors
-  Total test suites run: 1, # of errors: 2, # of uncaught exceptions: 1
+    FAIL due to exception with 4 non-exception errors
+  Total test suites run: 1, # of errors: 4, # of uncaught exceptions: 1
 
 Use lambdas in C++11 mode instead with exception-related asserts.
 

@@ -32,10 +32,10 @@ public:
     }
 
     virtual void onTestEnd(int numErrs,
-            const std::string &exceptionType,
-            const std::string &exceptionMsg)
+            const std::string &exceptionMsg,
+            const std::string &exceptionType)
     {
-        if (! exceptionType.empty()) {
+        if (!exceptionType.empty()) {
             *this << TAB << "Unhandled exception '"
                 << exceptionType << "'";
             if (!exceptionMsg.empty())
@@ -76,11 +76,18 @@ public:
     virtual void onAssertEnd(bool ok)
     { *this << (ok ? "OK" : "FAIL") << END_LINE; }
 
-    virtual void onAssertExceptionEnd(bool ok, const std::string& exceptionMsg)
+    virtual void onAssertExceptionEnd(bool ok,
+            const std::string &exceptionMsg,
+            const std::string &exceptionType)
     {
-        *this << (ok ? "OK"
-                : (std::string("FAIL with message: ") + exceptionMsg))
-            << END_LINE;
+        *this << (ok ?
+                    "OK" :
+                    (std::string("FAIL") +
+                         (!exceptionType.empty() ?
+                              std::string(": unexpected exception ") + exceptionType :
+                              "") +
+                         ": " + exceptionMsg))
+              << END_LINE;
     }
 
 protected:

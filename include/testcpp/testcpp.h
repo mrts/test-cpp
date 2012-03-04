@@ -23,6 +23,13 @@
 #include <memory>
 #include <map>
 
+#include <typeinfo>
+#include <exception>
+
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
+  #include <functional>
+#endif
+
 namespace Test
 {
 
@@ -78,15 +85,16 @@ public:
             int testNum, int total) = 0;
 
     virtual void onTestEnd(int numErrs,
-            const std::string& exceptionType = "",
-            const std::string& exceptionMsg = "") = 0;
+            const std::string& exceptionMsg = "",
+            const std::string& exceptionType = "") = 0;
 
     virtual void onAssertBegin(const std::string& testlabel) = 0;
     virtual void onAssertExceptionBegin(const std::string& testlabel) = 0;
     virtual void onAssertNoExceptionBegin(const std::string& testlabel) = 0;
 
     virtual void onAssertExceptionEnd(bool ok,
-            const std::string& exceptionMsg = "") = 0;
+            const std::string& exceptionMsg = "",
+            const std::string& exceptionType = "") = 0;
     virtual void onAssertEnd(bool ok) = 0;
 
     virtual void onAllTestsEnd(int numTests, int numErrs, int numExcepts) = 0;

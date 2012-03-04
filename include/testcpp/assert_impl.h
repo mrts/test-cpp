@@ -2,10 +2,6 @@
 #define TESTCPP_THROWS_H__
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
-  #include <functional>
-#endif
-
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
 template <typename ExceptionType>
 void assertThrows(const std::string &label,
         std::function<void (void)> testFunction)
@@ -32,6 +28,14 @@ void assertThrows(const std::string &label,
     } catch (const ExceptionType& e) {
         c._observer->onAssertExceptionEnd(true, e.what());
         return;
+    } catch (const std::exception& e) {
+        ++c._curTestErrs;
+        c._observer->onAssertExceptionEnd(false, e.what(), typeid(e).name());
+        return;
+    } catch (...) {
+        ++c._curTestErrs;
+        c._observer->onAssertExceptionEnd(false, "<<no message>>", "non-std::exception");
+        return;
     }
 
     ++c._curTestErrs;
@@ -51,11 +55,11 @@ void assertWontThrow(const std::string &label,
         ((testSuiteObject).*(testFunction))();
     } catch (const std::exception& e) {
         ++c._curTestErrs;
-        c._observer->onAssertExceptionEnd(false, e.what());
+        c._observer->onAssertExceptionEnd(false, e.what(), typeid(e).name());
         return;
     } catch (...) {
         ++c._curTestErrs;
-        c._observer->onAssertExceptionEnd(false, "caught non-std::exception");
+        c._observer->onAssertExceptionEnd(false, "<<no message>>", "non-std::exception");
         return;
     }
 

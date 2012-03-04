@@ -26,11 +26,11 @@ void assertWontThrow(const std::string &label,
         testFunction();
     } catch (const std::exception& e) {
         ++c._curTestErrs;
-        c._observer->onAssertExceptionEnd(false, e.what());
+        c._observer->onAssertExceptionEnd(false, e.what(), typeid(e).name());
         return;
     } catch (...) {
         ++c._curTestErrs;
-        c._observer->onAssertExceptionEnd(false, "caught non-std::exception");
+        c._observer->onAssertExceptionEnd(false, "<<no message>>", "non-std::exception");
         return;
     }
 
@@ -74,10 +74,10 @@ int Controller::run()
             test->test();
             _observer->onTestEnd(_curTestErrs);
         } catch (const std::exception &e) {
-            _observer->onTestEnd(_curTestErrs, typeid(e).name(), e.what());
+            _observer->onTestEnd(_curTestErrs, e.what(), typeid(e).name());
             ++_allTestExcepts;
         } catch (...) {
-            _observer->onTestEnd(_curTestErrs, "caught non-std::exception");
+            _observer->onTestEnd(_curTestErrs, "<<no message>>", "non-std::exception");
             ++_allTestExcepts;
         }
 
