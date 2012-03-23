@@ -38,7 +38,7 @@ obj/%.o: src/%.cpp
 $(TARGET): $(OBJS)
 	mkdir -p lib
 	rm -f $@
-	$(AR) $@ $<
+	$(AR) $@ $(OBJS)
 
 test/obj/%.o: test/src/%.cpp
 	mkdir -p test/obj
