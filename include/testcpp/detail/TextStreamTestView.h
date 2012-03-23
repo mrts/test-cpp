@@ -35,21 +35,22 @@ public:
             const std::string &exceptionMsg,
             const std::string &exceptionType)
     {
+        *this << TAB << "---" << END_LINE;
         if (!exceptionType.empty()) {
             *this << TAB << "Unhandled exception '"
                 << exceptionType << "'";
             if (!exceptionMsg.empty())
                 *this << " with message: " << exceptionMsg;
-            *this << END_LINE << TAB << "FAIL due to exception with "
+            *this << END_LINE << TAB << "Test FAIL due to exception with "
                 << numErrs << " non-exception errors"
                 << END_LINE;
             return;
         }
 
         if (numErrs == 0)
-            *this << TAB << "OK";
+            *this << TAB << "Test OK";
         else
-            *this << TAB << "FAIL with " << numErrs
+            *this << TAB << "Test FAIL with " << numErrs
                 << " non-exception errors";
         *this << END_LINE;
     }
@@ -80,13 +81,12 @@ public:
             const std::string &exceptionMsg,
             const std::string &exceptionType)
     {
-        *this << (ok ?
-                    "OK" :
-                    (std::string("FAIL") +
-                         (!exceptionType.empty() ?
-                              std::string(": unexpected exception ") + exceptionType :
-                              "") +
-                         ": " + exceptionMsg))
+        std::string unexpected = exceptionType.empty() ? "" :
+                     std::string(": unexpected exception ") + exceptionType;
+
+        *this << (ok ?  "OK" : (std::string("FAIL") + unexpected))
+              << END_LINE << TAB << TAB << "(message: "
+              << exceptionMsg << ")"
               << END_LINE;
     }
 
