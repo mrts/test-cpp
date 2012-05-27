@@ -1,7 +1,7 @@
-testcpp: a lightweight C++ testing framework
+test-cpp: a lightweight C++ testing framework
 ============================================
 
-``testcpp`` is a simple yet reasonably comprehensive and extensible C++ testing
+``test-cpp`` is a simple yet reasonably comprehensive and extensible C++ testing
 framework:
 
 * simple: about 350 lines of code;
@@ -14,14 +14,30 @@ framework:
   output to a GUI window) by implementing your own test observer; see
   `TextStreamTestView.h`_ for an example.
 
-``testcpp`` is `licenced under the Boost licence`_.
+``test-cpp`` is `licenced under the Boost licence`_.
 
 **Status**: production/stable.
 
-**Be sure to pull in submodules** after ``git clone``::
+**Be sure to pull in submodules** with ``git clone --recursive`` (see below
+under **Building**).
 
-  git submodule init
-  git submodule update
+Building
+--------
+
+Build and test ``test-cpp`` as follows (``clang++`` is the default compiler)::
+
+  git clone --recursive git://github.com/mrts/test-cpp.git
+
+  cd test-cpp
+
+  make
+  make test
+
+Includes are in ``include`` and the library will be in ``lib``.
+
+Add ``-I$(TESTCPPDIR)/include`` to include path and
+``-L$(TESTCPPDIR)/lib -ltestcpp`` to linker flags in your
+project's ``Makefile``.
 
 Usage
 -----
@@ -101,6 +117,6 @@ Use lambdas in C++11 mode instead with exception-related asserts.
 
 See `main test`_ for more details.
 
-.. _`licenced under the Boost licence`: https://github.com/mrts/testcpp/blob/master/LICENCE.rst
-.. _`main test`: https://github.com/mrts/testcpp/blob/master/test/src/main.cpp
-.. _TextStreamTestView.h: https://github.com/mrts/testcpp/blob/master/include/testcpp/detail/TextStreamTestView.h
+.. _`licenced under the Boost licence`: https://github.com/mrts/test-cpp/blob/master/LICENCE.rst
+.. _`main test`: https://github.com/mrts/test-cpp/blob/master/test/src/main.cpp
+.. _TextStreamTestView.h: https://github.com/mrts/test-cpp/blob/master/include/testcpp/detail/TextStreamTestView.h
