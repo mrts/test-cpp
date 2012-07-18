@@ -13,21 +13,34 @@ namespace Test
 class TextStreamTestView: public Observer
 {
 protected:
+
     enum EndLine { END_LINE };
     enum Tab { TAB };
 
+    enum ColorOk { OK };
+    enum ColorFail { FAIL };
+    enum ColorNormal { NORMAL };
+
 public:
+
     virtual void flush() = 0;
     virtual TextStreamTestView& operator<< (const std::string& msg) = 0;
     virtual TextStreamTestView& operator<< (int msg) = 0;
     virtual TextStreamTestView& operator<< (EndLine) = 0;
     virtual TextStreamTestView& operator<< (Tab) = 0;
 
+	virtual TextStreamTestView& operator<< (const TextStreamTestView&)
+	{ return *this; };
+
+    virtual TextStreamTestView& operator<< (ColorOk) { return *this; }
+    virtual TextStreamTestView& operator<< (ColorFail) { return *this; }
+    virtual TextStreamTestView& operator<< (ColorNormal) { return *this; }
+
     virtual void onTestBegin(const std::string& suiteName,
             int num, int total)
     {
         *this << "Test suite '" << suiteName << "' (#" << num
-            << "/" << total << "):" << END_LINE;
+              << "/" << total << "):" << END_LINE;
         _suiteName = suiteName;
     }
 
@@ -36,31 +49,41 @@ public:
             const std::string &exceptionType)
     {
         *this << TAB << "---" << END_LINE;
+
         if (!exceptionType.empty()) {
-            *this << TAB << "Unhandled exception '"
-                << exceptionType << "'";
+
+            *this << TAB << FAIL << "Unhandled exception" << NORMAL
+                  << " '" << exceptionType << "'";
+
             if (!exceptionMsg.empty())
-                *this << " with message: " << exceptionMsg;
-            *this << END_LINE << TAB << "Test FAIL due to exception with "
-                << numErrs << " non-exception errors"
-                << END_LINE;
+                *this << " with message: '" << exceptionMsg << "'";
+
+            *this << END_LINE << TAB << "Test suite "
+                  << FAIL << "FAIL" << NORMAL
+                  << " due to exception with "
+                  << numErrs << " non-exception errors" << END_LINE;
+
             return;
         }
 
-        if (numErrs == 0)
-            *this << TAB << "Test OK";
-        else
-            *this << TAB << "Test FAIL with " << numErrs
-                << " non-exception errors";
+        *this << TAB << "Test suite " << outputOkOrFail(numErrs == 0);
+
+        if (numErrs)
+            *this << " with " << numErrs << " non-exception errors";
+
         *this << END_LINE;
     }
 
     virtual void onAllTestsEnd(int numTests, int numErrs, int numExcept)
     {
         *this << "Total test suites run: " << numTests
-            << ", # of errors: " << numErrs
-            << ", # of uncaught exceptions: " << numExcept
-            << END_LINE;
+              << ", # of errors: " << numErrs
+              << ", # of uncaught exceptions: " << numExcept
+              << END_LINE;
+
+        *this << "Test run result: "
+              << outputOkOrFail(numExcept + numErrs == 0)
+              << END_LINE;
 
         flush();
     }
@@ -75,23 +98,39 @@ public:
     { *this << TAB << "test no exception '" << testlabel << "': ... "; }
 
     virtual void onAssertEnd(bool ok)
-    { *this << (ok ? "OK" : "FAIL") << END_LINE; }
+    {
+        *this << outputOkOrFail(ok) << END_LINE;
+    }
 
     virtual void onAssertExceptionEnd(bool ok,
             const std::string &exceptionMsg,
             const std::string &exceptionType)
     {
-        std::string unexpected = exceptionType.empty() ? "" :
-                     std::string(": unexpected exception ") + exceptionType;
+        *this << outputOkOrFail(ok);
 
-        *this << (ok ?  "OK" : (std::string("FAIL") + unexpected))
-              << END_LINE << TAB << TAB << "(message: "
-              << exceptionMsg << ")"
-              << END_LINE;
+        if (!ok)
+            *this << ": unexpected exception '" + exceptionType + "'";
+
+        *this << END_LINE << TAB << TAB
+              << "(message: '" << exceptionMsg << "')" << END_LINE;
     }
 
 protected:
+
     std::string _suiteName;
+
+private:
+
+    TextStreamTestView& outputOkOrFail(bool ok)
+    {
+		if (ok)
+			*this << OK  << "OK";
+		else
+			*this << FAIL << "FAIL";
+
+		*this << NORMAL;
+		return *this;
+	}
 };
 
 }
