@@ -115,8 +115,9 @@ results in the following output::
 
 Use lambdas in C++11 mode instead with exception-related asserts.
 
-See `main test`_ for more details.
+See `main test`_ or `dbc-cpp tests`_ for more details.
 
+.. _`dbc-cpp tests`: https://github.com/mrts/dbc-cpp/blob/master/test/src/main.cpp
 .. _`licenced under the Boost licence`: https://github.com/mrts/test-cpp/blob/master/LICENCE.rst
 .. _`main test`: https://github.com/mrts/test-cpp/blob/master/test/src/main.cpp
 .. _TextStreamTestView.h: https://github.com/mrts/test-cpp/blob/master/include/testcpp/detail/TextStreamTestView.h
