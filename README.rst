@@ -123,6 +123,7 @@ Colored output
 Use the following for colored output::
 
   #include <testcpp/StdOutView.h>
+  Test::Controller &c = Test::Controller::instance();
   c.setObserver(Test::observer_transferable_ptr(new Test::ColoredStdOutView));
 
 .. _`dbc-cpp tests`: https://github.com/mrts/dbc-cpp/blob/master/test/src/main.cpp
