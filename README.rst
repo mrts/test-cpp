@@ -117,6 +117,14 @@ Use lambdas in C++11 mode instead with exception-related asserts.
 
 See `main test`_ or `dbc-cpp tests`_ for more details.
 
+Colored output
+..............
+
+Use the following for colored output::
+
+  #include <testcpp/StdOutView.h>
+  c.setObserver(Test::observer_transferable_ptr(new Test::ColoredStdOutView));
+
 .. _`dbc-cpp tests`: https://github.com/mrts/dbc-cpp/blob/master/test/src/main.cpp
 .. _`licenced under the Boost licence`: https://github.com/mrts/test-cpp/blob/master/LICENCE.rst
 .. _`main test`: https://github.com/mrts/test-cpp/blob/master/test/src/main.cpp
