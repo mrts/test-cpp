@@ -39,6 +39,16 @@ Add ``-I$(TESTCPPDIR)/include`` to include path and
 ``-L$(TESTCPPDIR)/lib -ltestcpp`` to linker flags in your
 project's ``Makefile``.
 
+Visual Studio integration
+.........................
+
+Visual Studio users can use the solution file from the `win32-asyncconnect project`_
+as the basis for integrating ``test-cpp`` to their solutions. It also contains a
+`test runner`_.
+
+For a nice change-compile-test experience, set the test runner as startup project
+so that the colored console application will be run when you press ``F5``.
+
 Adding as a git submodule
 -------------------------
 
@@ -136,5 +146,7 @@ Use the following for colored output::
 
 .. _`dbc-cpp tests`: https://github.com/mrts/dbc-cpp/blob/master/test/src/main.cpp
 .. _`licenced under the Boost licence`: https://github.com/mrts/test-cpp/blob/master/LICENCE.rst
+.. _`win32-asyncconnect project`: https://github.com/mrts/win32-asyncconnect
+.. _`test runner`: https://github.com/mrts/win32-asyncconnect/blob/master/test/Runner/src/TestRunner.cpp
 .. _`main test`: https://github.com/mrts/test-cpp/blob/master/test/src/main.cpp
 .. _TextStreamTestView.h: https://github.com/mrts/test-cpp/blob/master/include/testcpp/detail/TextStreamTestView.h
