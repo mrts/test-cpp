@@ -1,5 +1,6 @@
 *.a
 *.swp
 *.o
+*.user
 lib/
 obj/
