@@ -39,6 +39,14 @@ Add ``-I$(TESTCPPDIR)/include`` to include path and
 ``-L$(TESTCPPDIR)/lib -ltestcpp`` to linker flags in your
 project's ``Makefile``.
 
+Adding as a git submodule
+-------------------------
+
+Add ``test-cpp`` to your ``git`` repository as a submodule as follows::
+
+  git submodule add git://github.com/mrts/test-cpp.git test/lib/testcpp
+  git submodule update --init --recursive
+
 Usage
 -----
 
