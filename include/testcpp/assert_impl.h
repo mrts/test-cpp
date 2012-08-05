@@ -83,4 +83,20 @@ void assertEqual(const std::string& label,
     c._observer->onAssertEnd(ok);
 }
 
+template <typename CompareType>
+void assertNotEqual(const std::string& label,
+        const CompareType& a, const CompareType& b)
+{
+    Controller& c = Controller::instance();
+
+    c._observer->onAssertBegin(label);
+
+    bool ok = (a != b);
+
+    if (!ok)
+        ++c._curTestErrs;
+
+    c._observer->onAssertEnd(ok);
+}
+
 #endif /* TESTCPP_THROWS_H */

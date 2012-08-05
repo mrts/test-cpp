@@ -103,8 +103,15 @@ public:
 
 void assertTrue(const std::string& label, bool ok);
 
+inline void assertFalse(const std::string& label, bool ok)
+{ return assertTrue(label, !ok); }
+
 template <typename CompareType>
 void assertEqual(const std::string& label,
+        const CompareType& a, const CompareType& b);
+
+template <typename CompareType>
+void assertNotEqual(const std::string& label,
         const CompareType& a, const CompareType& b);
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
@@ -143,6 +150,10 @@ public:
 
     template <typename CompareType>
     friend void assertEqual(const std::string& label,
+            const CompareType& a, const CompareType& b);
+
+	template <typename CompareType>
+    friend void assertNotEqual(const std::string& label,
             const CompareType& a, const CompareType& b);
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)

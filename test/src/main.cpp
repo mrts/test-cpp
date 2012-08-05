@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <iostream>
 
 void testExceptionGlobal()
 {
@@ -71,10 +72,22 @@ public:
         Test::assertTrue("1 + 1 == 3 is true (must FAIL)",
                 1 + 1 == 3);
 
+        Test::assertFalse("1 + 1 == 2 is false (must FAIL)",
+                1 + 1 == 2);
+
+        Test::assertFalse("1 + 1 == 3 is false",
+                1 + 1 == 3);
+
         Test::assertEqual<int>("1 + 1 == 2",
                 1 + 1, 2);
 
         Test::assertEqual<int>("1 + 1 == 3 (must FAIL)",
+                1 + 1, 3);
+
+        Test::assertNotEqual<int>("1 + 1 != 2 (must FAIL)",
+                1 + 1, 2);
+
+        Test::assertNotEqual<int>("1 + 1 != 3",
                 1 + 1, 3);
 
         Test::assertEqual<std::string>("\"abc\" == \"abc\"",
@@ -156,5 +169,10 @@ int main()
 
     c.addTestSuite("testsuite1", Test::Suite::instance<TestSuite1>);
 
-    return c.run();
+    int numErrors = c.run();
+
+    std::cout << "Press ENTER to exit" << std::endl;
+    std::cin.get();
+
+    return numErrors;
 }
