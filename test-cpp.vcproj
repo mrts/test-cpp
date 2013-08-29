@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="Test.Lib.TestCpp"
+	Name="test-cpp"
 	ProjectGUID="{F2D12D29-3B5A-4733-BA89-D1B4F1A48D02}"
-	RootNamespace="LibTestCpp"
+	RootNamespace="testcpp"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -179,6 +179,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\README.rst"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
