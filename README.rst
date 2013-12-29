@@ -24,14 +24,16 @@ under **Building**).
 Building
 --------
 
-Build and test ``test-cpp`` as follows (``clang++`` is the default compiler)::
+``test-cpp`` build system uses `CMake`_.
+
+Build and test ``test-cpp`` as follows::
 
   git clone --recursive git://github.com/mrts/test-cpp.git
 
   cd test-cpp
 
-  make
-  make test
+  ./scripts/prepare-build.sh
+  ./scripts/build.sh
 
 Includes are in ``include`` and the library will be in ``lib``.
 
@@ -42,12 +44,16 @@ project's ``Makefile``.
 Visual Studio integration
 .........................
 
-Visual Studio users can use the solution file from the `win32-asyncconnect project`_
+`CMake`_ will generate Visual Studio project files into ``lib`` that can be
+added into Visual Studio solutions.
+
+Visual Studio users can also use the solution file from the `win32-asyncconnect project`_
 as the basis for integrating ``test-cpp`` to their solutions. It also contains a
 `test runner`_.
 
 For a nice change-compile-test experience, set the test runner as startup project
 so that the colored console application will be run when you press ``F5``.
+Press ``CTRL-F5`` to keep the console open.
 
 Adding as a git submodule
 -------------------------
@@ -144,9 +150,10 @@ Use the following for colored output::
   Test::Controller &c = Test::Controller::instance();
   c.setObserver(Test::observer_transferable_ptr(new Test::ColoredStdOutView));
 
+.. _CMake: http://www.cmake.org/
 .. _`dbc-cpp tests`: https://github.com/mrts/dbc-cpp/blob/master/test/src/main.cpp
 .. _`licenced under the Boost licence`: https://github.com/mrts/test-cpp/blob/master/LICENCE.rst
-.. _`win32-asyncconnect project`: https://github.com/mrts/win32-asyncconnect
-.. _`test runner`: https://github.com/mrts/win32-asyncconnect/blob/master/test/Runner/src/TestRunner.cpp
 .. _`main test`: https://github.com/mrts/test-cpp/blob/master/test/src/main.cpp
+.. _`test runner`: https://github.com/mrts/win32-asyncconnect/blob/master/test/Runner/src/TestRunner.cpp
 .. _TextStreamTestView.h: https://github.com/mrts/test-cpp/blob/master/include/testcpp/detail/TextStreamTestView.h
+.. _`win32-asyncconnect project`: https://github.com/mrts/win32-asyncconnect
