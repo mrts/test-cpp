@@ -11,7 +11,7 @@ void assertTrue(const std::string &testlabel, bool ok)
     Controller &c = Controller::instance();
     c._observer->onAssertBegin(testlabel);
     if (! ok)
-        ++c._curTestErrs;
+        ++c._curTestSuiteErrs;
     c._observer->onAssertEnd(ok);
 }
 
@@ -25,11 +25,11 @@ void assertWontThrow(const std::string &label,
     try {
         testFunction();
     } catch (const std::exception& e) {
-        ++c._curTestErrs;
+        ++c._curTestSuiteErrs;
         c._observer->onAssertExceptionEnd(false, e.what(), typeid(e).name());
         return;
     } catch (...) {
-        ++c._curTestErrs;
+        ++c._curTestSuiteErrs;
         c._observer->onAssertExceptionEnd(false, "<<no message>>", "non-std::exception");
         return;
     }
@@ -40,9 +40,9 @@ void assertWontThrow(const std::string &label,
 
 Controller::Controller() :
     _observer(new StdOutView),
-    _testFuncs(),
-    _curTest(0),
-    _curTestErrs(0),
+    _testSuiteFactories(),
+    _curTestSuite(0),
+    _curTestSuiteErrs(0),
     _allTestErrs(0),
     _allTestExcepts(0)
 {}
@@ -55,36 +55,39 @@ Controller& Controller::instance()
 
 int Controller::run()
 {
-    _curTest = 0;
+    _curTestSuite = 0;
+    size_t testSuiteCount = _testSuiteFactories.size();
+
+    _observer->onAllTestSuitesBegin(testSuiteCount);
 
     typedef std::map<std::string, TestSuiteFactoryFunction>::iterator
         TestSuiteFactoryIter;
 
-    for (TestSuiteFactoryIter i = _testFuncs.begin(), end = _testFuncs.end();
+    for (TestSuiteFactoryIter i = _testSuiteFactories.begin(), end = _testSuiteFactories.end();
             i != end; ++i) {
 
-        _curTestErrs = 0;
-        ++_curTest;
+        _curTestSuiteErrs = 0;
+        ++_curTestSuite;
 
-        _observer->onTestBegin(i->first, _curTest, _testFuncs.size());
+        _observer->onTestSuiteBegin(i->first, _curTestSuite, testSuiteCount);
 
         try {
             // create the test instance and take ownership
-            suite_scoped_ptr test(i->second());
-            test->test();
-            _observer->onTestEnd(_curTestErrs);
+            suite_scoped_ptr testsuite(i->second());
+            testsuite->test();
+            _observer->onTestSuiteEnd(_curTestSuiteErrs);
         } catch (const std::exception &e) {
-            _observer->onTestEnd(_curTestErrs, e.what(), typeid(e).name());
+            _observer->onTestSuiteEndWithStdException(_curTestSuiteErrs, e);
             ++_allTestExcepts;
         } catch (...) {
-            _observer->onTestEnd(_curTestErrs, "<<no message>>", "non-std::exception");
+            _observer->onTestSuiteEndWithEllipsisException(_curTestSuiteErrs);
             ++_allTestExcepts;
         }
 
-        _allTestErrs += _curTestErrs;
+        _allTestErrs += _curTestSuiteErrs;
     }
 
-    _observer->onAllTestsEnd(_testFuncs.size(), _allTestErrs, _allTestExcepts);
+    _observer->onAllTestSuitesEnd(_curTestSuite, testSuiteCount, _allTestErrs, _allTestExcepts);
 
     return _allTestErrs;
 }

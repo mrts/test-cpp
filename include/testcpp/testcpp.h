@@ -4,11 +4,11 @@
  * Copyright (c) 2007, 2011, 2012 Mart Sõmermaa.
  *
  * This program is free software; you can redistribute it and/or modify it
- * under the terms of the MIT Licence as published by the Open Source
+ * under the terms of the MIT License as published by the Open Source
  * Initiative group on the web at
  * http://opensource.org/licenses/MIT
  *
- * Version: 3.0.0
+ * Version: 3.1.0
  */
 
 #ifndef TESTCPP_H__
@@ -81,23 +81,26 @@ class Observer
     UTILCPP_DECLARE_INTERFACE(Observer)
 
 public:
-    virtual void onTestBegin(const std::string& testlabel,
-            int testNum, int total) = 0;
+    virtual void onTestSuiteBegin(const std::string& testSuiteLabel,
+            int testSuiteNum, int testSuitesNumTotal) = 0;
 
-    virtual void onTestEnd(int numErrs,
-            const std::string& exceptionMsg = "",
-            const std::string& exceptionType = "") = 0;
+    virtual void onTestSuiteEnd(int numErrs) = 0;
+    virtual void onTestSuiteEndWithStdException(int numErrs, const std::exception& e) = 0;
+    virtual void onTestSuiteEndWithEllipsisException(int numErrs) = 0;
 
     virtual void onAssertBegin(const std::string& testlabel) = 0;
     virtual void onAssertExceptionBegin(const std::string& testlabel) = 0;
     virtual void onAssertNoExceptionBegin(const std::string& testlabel) = 0;
 
-    virtual void onAssertExceptionEnd(bool ok,
-            const std::string& exceptionMsg = "",
-            const std::string& exceptionType = "") = 0;
     virtual void onAssertEnd(bool ok) = 0;
+    virtual void onAssertExceptionEndWithExpectedException(const std::exception& e) = 0;
+    virtual void onAssertExceptionEndWithUnexpectedException(const std::exception& e) = 0;
+    virtual void onAssertExceptionEndWithEllipsisException() = 0;
+    virtual void onAssertNoExceptionEndWithStdException(const std::exception& e) = 0;
+    virtual void onAssertNoExceptionEndWithEllipsisException() = 0;
 
-    virtual void onAllTestsEnd(int numTests, int numErrs, int numExcepts) = 0;
+    virtual void onAllTestSuitesBegin(int testSuitesNumTotal) = 0;
+    virtual void onAllTestSuitesEnd(int lastTestSuiteNum, int testSuitesNumTotal, int numErrs, int numExcepts) = 0;
 };
 
 
@@ -152,7 +155,7 @@ public:
     friend void assertEqual(const std::string& label,
             const CompareType& a, const CompareType& b);
 
-	template <typename CompareType>
+    template <typename CompareType>
     friend void assertNotEqual(const std::string& label,
             const CompareType& a, const CompareType& b);
 
@@ -178,7 +181,7 @@ public:
 #endif
 
     void addTestSuite(const std::string &label, TestSuiteFactoryFunction ffn)
-    { _testFuncs[label] = ffn; }
+    { _testSuiteFactories[label] = ffn; }
 
     void setObserver(observer_transferable_ptr v)
     {
@@ -193,10 +196,10 @@ public:
 
 private:
     observer_scoped_ptr _observer;
-    std::map<std::string, TestSuiteFactoryFunction> _testFuncs;
+    std::map<std::string, TestSuiteFactoryFunction> _testSuiteFactories;
 
-    int _curTest;
-    int _curTestErrs;
+    int _curTestSuite;
+    int _curTestSuiteErrs;
     int _allTestErrs;
     int _allTestExcepts;
 };

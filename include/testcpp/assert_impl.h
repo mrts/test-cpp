@@ -26,19 +26,19 @@ void assertThrows(const std::string &label,
         ((testSuiteObject).*(testFunction))();
 #endif
     } catch (const ExceptionType& e) {
-        c._observer->onAssertExceptionEnd(true, e.what());
+        c._observer->onAssertExceptionEndWithExpectedException(e);
         return;
     } catch (const std::exception& e) {
-        ++c._curTestErrs;
-        c._observer->onAssertExceptionEnd(false, e.what(), typeid(e).name());
+        ++c._curTestSuiteErrs;
+        c._observer->onAssertExceptionEndWithUnexpectedException(e);
         return;
     } catch (...) {
-        ++c._curTestErrs;
-        c._observer->onAssertExceptionEnd(false, "<<no message>>", "non-std::exception");
+        ++c._curTestSuiteErrs;
+        c._observer->onAssertExceptionEndWithEllipsisException();
         return;
     }
 
-    ++c._curTestErrs;
+    ++c._curTestSuiteErrs;
     c._observer->onAssertEnd(false);
 }
 
@@ -54,12 +54,12 @@ void assertWontThrow(const std::string &label,
     try {
         ((testSuiteObject).*(testFunction))();
     } catch (const std::exception& e) {
-        ++c._curTestErrs;
-        c._observer->onAssertExceptionEnd(false, e.what(), typeid(e).name());
+        ++c._curTestSuiteErrs;
+        c._observer->onAssertNoExceptionEndWithStdException(e);
         return;
     } catch (...) {
-        ++c._curTestErrs;
-        c._observer->onAssertExceptionEnd(false, "<<no message>>", "non-std::exception");
+        ++c._curTestSuiteErrs;
+        c._observer->onAssertNoExceptionEndWithEllipsisException();
         return;
     }
 
@@ -78,7 +78,7 @@ void assertEqual(const std::string& label,
     bool ok = (a == b);
 
     if (!ok)
-        ++c._curTestErrs;
+        ++c._curTestSuiteErrs;
 
     c._observer->onAssertEnd(ok);
 }
@@ -94,7 +94,7 @@ void assertNotEqual(const std::string& label,
     bool ok = (a != b);
 
     if (!ok)
-        ++c._curTestErrs;
+        ++c._curTestSuiteErrs;
 
     c._observer->onAssertEnd(ok);
 }

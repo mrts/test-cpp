@@ -29,14 +29,33 @@ public:
     virtual TextStreamTestView& operator<< (EndLine) = 0;
     virtual TextStreamTestView& operator<< (Tab) = 0;
 
-	virtual TextStreamTestView& operator<< (const TextStreamTestView&)
-	{ return *this; };
+    virtual TextStreamTestView& operator<< (const TextStreamTestView&)
+    { return *this; };
 
     virtual TextStreamTestView& operator<< (ColorOk) { return *this; }
     virtual TextStreamTestView& operator<< (ColorFail) { return *this; }
     virtual TextStreamTestView& operator<< (ColorNormal) { return *this; }
 
-    virtual void onTestBegin(const std::string& suiteName,
+    virtual void onAllTestSuitesBegin(int total)
+    { *this << "Start running " << total << " test suites" << END_LINE; }
+
+    virtual void onAllTestSuitesEnd(int lastTestSuiteNum,
+            int testSuitesNumTotal, int numErrs, int numExcepts)
+    {
+        *this << "Did run " << lastTestSuiteNum
+              << " of " << testSuitesNumTotal << " total test suites"
+              << ", # of errors: " << numErrs
+              << ", # of uncaught exceptions: " << numExcepts
+              << END_LINE;
+
+        *this << "Test run result: "
+              << outputOkOrFail(numExcepts + numErrs == 0)
+              << END_LINE;
+
+        flush();
+    }
+
+    virtual void onTestSuiteBegin(const std::string& suiteName,
             int num, int total)
     {
         *this << "Test suite '" << suiteName << "' (#" << num
@@ -44,27 +63,9 @@ public:
         _suiteName = suiteName;
     }
 
-    virtual void onTestEnd(int numErrs,
-            const std::string &exceptionMsg,
-            const std::string &exceptionType)
+    virtual void onTestSuiteEnd(int numErrs)
     {
         *this << TAB << "---" << END_LINE;
-
-        if (!exceptionType.empty()) {
-
-            *this << TAB << FAIL << "Unhandled exception" << NORMAL
-                  << " '" << exceptionType << "'";
-
-            if (!exceptionMsg.empty())
-                *this << " with message: '" << exceptionMsg << "'";
-
-            *this << END_LINE << TAB << "Test suite "
-                  << FAIL << "FAIL" << NORMAL
-                  << " due to exception with "
-                  << numErrs << " non-exception errors" << END_LINE;
-
-            return;
-        }
 
         *this << TAB << "Test suite " << outputOkOrFail(numErrs == 0);
 
@@ -74,18 +75,30 @@ public:
         *this << END_LINE;
     }
 
-    virtual void onAllTestsEnd(int numTests, int numErrs, int numExcept)
+    virtual void onTestSuiteEndWithStdException(int numErrs, const std::exception& e)
     {
-        *this << "Total test suites run: " << numTests
-              << ", # of errors: " << numErrs
-              << ", # of uncaught exceptions: " << numExcept
-              << END_LINE;
+        outputSeparator();
 
-        *this << "Test run result: "
-              << outputOkOrFail(numExcept + numErrs == 0)
-              << END_LINE;
+        *this << TAB << FAIL << "Unhandled exception" << NORMAL;
 
-        flush();
+        outputException(e);
+
+        *this << TAB << "Test suite "
+              << FAIL << "FAIL" << NORMAL
+              << " due to exception with "
+              << numErrs << " non-exception errors" << END_LINE;
+    }
+
+    virtual void onTestSuiteEndWithEllipsisException(int numErrs)
+    {
+        outputSeparator();
+
+        *this << TAB << FAIL << "Unhandled non-standard exception" << NORMAL;
+
+        *this << END_LINE << TAB << "Test suite "
+              << FAIL << "FAIL" << NORMAL
+              << " due to exception with "
+              << numErrs << " non-exception errors" << END_LINE;
     }
 
     virtual void onAssertBegin(const std::string& testlabel)
@@ -98,21 +111,31 @@ public:
     { *this << TAB << "test no exception '" << testlabel << "': ... "; }
 
     virtual void onAssertEnd(bool ok)
+    { *this << outputOkOrFail(ok) << END_LINE; }
+
+    virtual void onAssertExceptionEndWithExpectedException(const std::exception& e)
+    { assertExceptionEnd(true, e); }
+
+    virtual void onAssertExceptionEndWithUnexpectedException(const std::exception& e)
+    { assertExceptionEnd(false, e); }
+
+    virtual void onAssertExceptionEndWithEllipsisException()
     {
-        *this << outputOkOrFail(ok) << END_LINE;
+        *this << FAIL << "FAIL" << NORMAL
+              << ": unexpected non-standard exception" << END_LINE;
     }
 
-    virtual void onAssertExceptionEnd(bool ok,
-            const std::string &exceptionMsg,
-            const std::string &exceptionType)
+    virtual void onAssertNoExceptionEndWithStdException(const std::exception& e)
     {
-        *this << outputOkOrFail(ok);
+        *this << FAIL << "FAIL" << NORMAL
+              << ": unexpected exception";
 
-        if (!ok)
-            *this << ": unexpected exception '" + exceptionType + "'";
+        outputException(e);
+    }
 
-        *this << END_LINE << TAB << TAB
-              << "(message: '" << exceptionMsg << "')" << END_LINE;
+    virtual void onAssertNoExceptionEndWithEllipsisException()
+    {
+        onAssertExceptionEndWithEllipsisException();
     }
 
 protected:
@@ -121,16 +144,54 @@ protected:
 
 private:
 
+    void outputSeparator()
+    {
+        *this << TAB << "---" << END_LINE;
+    }
+
+    void outputException(const std::exception& e)
+    {
+        const std::string &exceptionType(typeid(e).name());
+        *this << " '" << exceptionType << "'";
+
+        const std::string& exceptionMsg(e.what());
+        if (!exceptionMsg.empty()) {
+            *this << END_LINE;
+            outputExceptionMessage(exceptionMsg);
+        }
+
+        *this << END_LINE;
+    }
+
+
     TextStreamTestView& outputOkOrFail(bool ok)
     {
-		if (ok)
-			*this << OK  << "OK";
-		else
-			*this << FAIL << "FAIL";
+        if (ok)
+            *this << OK  << "OK";
+        else
+            *this << FAIL << "FAIL";
 
-		*this << NORMAL;
-		return *this;
-	}
+        *this << NORMAL;
+        return *this;
+    }
+
+    void assertExceptionEnd(bool ok, const std::exception& e)
+    {
+        *this << outputOkOrFail(ok);
+
+        if (!ok) {
+            const std::string &exceptionType(typeid(e).name());
+            *this << ": unexpected exception '" + exceptionType + "'";
+        }
+
+        *this << END_LINE;
+        outputExceptionMessage(e.what());
+        *this << END_LINE;
+    }
+
+    void outputExceptionMessage(const std::string& exceptionMsg)
+    { *this << TAB << TAB << "(message: '" << exceptionMsg << "')"; }
+
 };
 
 }
