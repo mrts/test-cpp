@@ -6,37 +6,12 @@
 namespace Test
 {
 
-void assertTrue(const std::string &testlabel, bool ok)
+void assertTrue(const std::string& testlabel, bool ok)
 {
     Controller &c = Controller::instance();
-    c._observer->onAssertBegin(testlabel);
-    if (! ok)
-        ++c._curTestSuiteErrs;
-    c._observer->onAssertEnd(ok);
+    c.beforeAssert(testlabel);
+    c.afterAssert(ok);
 }
-
-
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
-void assertWontThrow(const std::string &label,
-        std::function<void (void)> testFunction)
-{
-    Controller &c = Controller::instance();
-    c._observer->onAssertNoExceptionBegin(label);
-    try {
-        testFunction();
-    } catch (const std::exception& e) {
-        ++c._curTestSuiteErrs;
-        c._observer->onAssertExceptionEnd(false, e.what(), typeid(e).name());
-        return;
-    } catch (...) {
-        ++c._curTestSuiteErrs;
-        c._observer->onAssertExceptionEnd(false, "<<no message>>", "non-std::exception");
-        return;
-    }
-
-    c._observer->onAssertEnd(true);
-}
-#endif
 
 Controller::Controller() :
     _observer(new StdOutView),

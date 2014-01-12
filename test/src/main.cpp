@@ -16,10 +16,8 @@ class Object
     UTILCPP_DISABLE_COPY(Object)
 
 public:
-#if !(defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L))
     // must define method pointer signature when using C++03
     typedef void (Object::*Method)();
-#endif
 
     Object():
         _ctr(0)
@@ -40,10 +38,8 @@ class TestSuite1 : public Test::Suite
     UTILCPP_DISABLE_COPY(TestSuite1)
 
 public:
-#if !(defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L))
     // must define method pointer signature when using C++03
     typedef void (TestSuite1::*TestMethod)();
-#endif
 
     // setUp() happens in the constructor
     TestSuite1() :
@@ -93,26 +89,6 @@ public:
         Test::assertEqual<std::string>("\"abc\" == \"abc\"",
                 "abc", "abc");
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
-        // use lambdas with C++11
-        Test::assertWontThrow("won't throw exceptions",
-                [&] () { _object.instanceMethodNoException(); });
-
-        Test::assertThrows<std::logic_error>("throws logic_error",
-                [&] () { _object.instanceMethodThrowsException(); });
-
-        Test::assertWontThrow("throws logic_error (must FAIL)",
-                [&] () { _object.instanceMethodThrowsException(); });
-
-        Test::assertThrows<std::logic_error>("doesn't throw logic_error (must FAIL)",
-                [&] () { _object.instanceMethodNoException(); });
-
-        // This assert fails as the exception thrown is not std::runtime_error.
-        Test::assertThrows<std::runtime_error>("throws logic_error instead of runtime_error (must FAIL)",
-                [&] () { _object.instanceMethodThrowsException(); });
-
-#else
-        // use method pointers and templates with C++03
         Test::assertWontThrow<TestSuite1, TestMethod>
             ("won't throw exceptions",
                 *this, &TestSuite1::testObjectWontThrow);
@@ -134,7 +110,6 @@ public:
         Test::assertThrows<Object, Object::Method, std::runtime_error>
             ("throws logic_error instead of runtime_error (must FAIL)",
                 _object, &Object::instanceMethodThrowsException);
-#endif
 
         // The unhandled exception is caught, but stops the testsuite.
         testObjectThrows();
@@ -150,13 +125,6 @@ int main()
 {
     // Example of running tests outside of a suite.
     // Controller initializes the StdOutView observer by default.
-
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
-    // When using C++11, exception assertions can be used outside
-    // test suites, otherwise only inside.
-    Test::assertThrows<std::logic_error>("throws std::logic_error",
-           testExceptionGlobal);
-#endif
 
     Test::assertTrue("1 - 1 == 0 is true",
             1 - 1 == 0);

@@ -1,86 +1,58 @@
 #ifndef TESTCPP_THROWS_H__
 #define TESTCPP_THROWS_H__
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
-template <typename ExceptionType>
-void assertThrows(const std::string &label,
-        std::function<void (void)> testFunction)
-#else
 template <class TestSuiteType,
           typename TestMethodType,
           typename ExceptionType>
 void assertThrows(const std::string &label,
                   TestSuiteType& testSuiteObject,
                   TestMethodType testFunction)
-#endif
 {
     Controller& c = Controller::instance();
-
-    c._observer->onAssertExceptionBegin(label);
+    c.beforeAssertException(label);
 
     try {
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
-        testFunction();
-#else
         // call object method
         ((testSuiteObject).*(testFunction))();
-#endif
+        c.afterAssert(false);
     } catch (const ExceptionType& e) {
-        c._observer->onAssertExceptionEndWithExpectedException(e);
-        return;
+        c.onAssertExceptionEndWithExpectedException(e);
     } catch (const std::exception& e) {
-        ++c._curTestSuiteErrs;
-        c._observer->onAssertExceptionEndWithUnexpectedException(e);
-        return;
+        c.onAssertExceptionEndWithUnexpectedException(&e);
     } catch (...) {
-        ++c._curTestSuiteErrs;
-        c._observer->onAssertExceptionEndWithEllipsisException();
-        return;
+        c.onAssertExceptionEndWithUnexpectedException();
     }
-
-    ++c._curTestSuiteErrs;
-    c._observer->onAssertEnd(false);
 }
 
-#if !(defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L))
 template <class TestSuiteType,
           typename TestMethodType>
 void assertWontThrow(const std::string &label,
                   TestSuiteType& testSuiteObject,
                   TestMethodType testFunction)
 {
-    Controller &c = Controller::instance();
-    c._observer->onAssertNoExceptionBegin(label);
+    Controller& c = Controller::instance();
+    c.beforeAssertNoException(label);
+
     try {
         ((testSuiteObject).*(testFunction))();
+        c.afterAssert(true);
     } catch (const std::exception& e) {
-        ++c._curTestSuiteErrs;
-        c._observer->onAssertNoExceptionEndWithStdException(e);
-        return;
+        c.onAssertNoExceptionEndWithException(&e);
     } catch (...) {
-        ++c._curTestSuiteErrs;
-        c._observer->onAssertNoExceptionEndWithEllipsisException();
-        return;
+        c.onAssertNoExceptionEndWithException();
     }
-
-    c._observer->onAssertEnd(true);
 }
-#endif
 
 template <typename CompareType>
 void assertEqual(const std::string& label,
         const CompareType& a, const CompareType& b)
 {
-    Controller& c = Controller::instance();
-
-    c._observer->onAssertBegin(label);
+    Controller &c = Controller::instance();
+    c.beforeAssert(label);
 
     bool ok = (a == b);
 
-    if (!ok)
-        ++c._curTestSuiteErrs;
-
-    c._observer->onAssertEnd(ok);
+    c.afterAssert(ok);
 }
 
 template <typename CompareType>

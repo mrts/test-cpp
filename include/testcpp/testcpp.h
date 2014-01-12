@@ -26,10 +26,6 @@
 #include <typeinfo>
 #include <exception>
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
-  #include <functional>
-#endif
-
 namespace Test
 {
 
@@ -117,16 +113,6 @@ template <typename CompareType>
 void assertNotEqual(const std::string& label,
         const CompareType& a, const CompareType& b);
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
-// use lambdas with C++11
-template <typename ExceptionType>
-void assertThrows(const std::string &label,
-        std::function<void (void)> testFunction);
-
-void assertWontThrow(const std::string &label,
-        std::function<void (void)> testFunction);
-
-#else
 template <class TestSuiteType,
           typename TestMethodType,
           typename ExceptionType>
@@ -149,37 +135,6 @@ class Controller
 public:
     typedef suite_transferable_ptr (*TestSuiteFactoryFunction)();
 
-    friend void assertTrue(const std::string &label, bool ok);
-
-    template <typename CompareType>
-    friend void assertEqual(const std::string& label,
-            const CompareType& a, const CompareType& b);
-
-    template <typename CompareType>
-    friend void assertNotEqual(const std::string& label,
-            const CompareType& a, const CompareType& b);
-
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
-    template <typename ExceptionType>
-    friend void assertThrows(const std::string &label,
-        std::function<void (void)> testFunction);
-
-    friend void assertWontThrow(const std::string &label,
-            std::function<void (void)> testFunction);
-
-#else
-    template <class TestSuiteType,
-              typename TestMethodType,
-              typename ExceptionType>
-    friend void assertThrows(const std::string &label,
-            TestSuiteType& testSuite, TestMethodType testFunction);
-
-    template <class TestSuiteType,
-              typename TestMethodType>
-    friend void assertWontThrow(const std::string &label,
-            TestSuiteType& testSuite, TestMethodType testFunction);
-#endif
-
     void addTestSuite(const std::string &label, TestSuiteFactoryFunction ffn)
     { _testSuiteFactories[label] = ffn; }
 
@@ -193,6 +148,43 @@ public:
     }
 
     int run();
+
+    void beforeAssert(const std::string& label)
+    { _observer->onAssertBegin(label); }
+
+    void afterAssert(bool ok)
+    {
+        if (!ok)
+            ++_curTestSuiteErrs;
+        _observer->onAssertEnd(ok);
+    }
+
+    void beforeAssertException(const std::string& label)
+    { _observer->onAssertExceptionBegin(label); }
+
+    void onAssertExceptionEndWithExpectedException(const std::exception& e)
+    { _observer->onAssertExceptionEndWithExpectedException(e); }
+
+    void onAssertExceptionEndWithUnexpectedException(const std::exception* e = 0)
+    {
+        ++_curTestSuiteErrs;
+        if (e)
+            _observer->onAssertExceptionEndWithUnexpectedException(*e);
+        else
+            _observer->onAssertExceptionEndWithEllipsisException();
+    }
+
+    void beforeAssertNoException(const std::string& label)
+    { _observer->onAssertNoExceptionBegin(label); }
+
+    void onAssertNoExceptionEndWithException(const std::exception* e = 0)
+    {
+        ++_curTestSuiteErrs;
+        if (e)
+            _observer->onAssertNoExceptionEndWithStdException(*e);
+        else
+            _observer->onAssertNoExceptionEndWithEllipsisException();
+    }
 
 private:
     observer_scoped_ptr _observer;
