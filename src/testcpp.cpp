@@ -6,13 +6,6 @@
 namespace Test
 {
 
-void assertTrue(const std::string& testlabel, bool ok)
-{
-    Controller &c = Controller::instance();
-    c.beforeAssert(testlabel);
-    c.afterAssert(ok);
-}
-
 Controller::Controller() :
     _observer(new StdOutView),
     _testSuiteFactories(),

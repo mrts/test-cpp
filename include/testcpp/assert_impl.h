@@ -1,12 +1,21 @@
 #ifndef TESTCPP_THROWS_H__
 #define TESTCPP_THROWS_H__
 
+inline void assertTrueImpl(const std::string& testlabel, bool ok,
+        const char* const /* function */, const char* const /* file */, int /* line */)
+{
+    Controller &c = Controller::instance();
+    c.beforeAssert(testlabel);
+    c.afterAssert(ok);
+}
+
 template <class TestSuiteType,
           typename TestMethodType,
           typename ExceptionType>
-void assertThrows(const std::string &label,
+void assertThrowsImpl(const std::string &label,
                   TestSuiteType& testSuiteObject,
-                  TestMethodType testFunction)
+                  TestMethodType testFunction,
+        const char* const /* function */, const char* const /* file */, int /* line */)
 {
     Controller& c = Controller::instance();
     c.beforeAssertException(label);
@@ -26,9 +35,10 @@ void assertThrows(const std::string &label,
 
 template <class TestSuiteType,
           typename TestMethodType>
-void assertWontThrow(const std::string &label,
+void assertWontThrowImpl(const std::string &label,
                   TestSuiteType& testSuiteObject,
-                  TestMethodType testFunction)
+                  TestMethodType testFunction,
+        const char* const /* function */, const char* const /* file */, int /* line */)
 {
     Controller& c = Controller::instance();
     c.beforeAssertNoException(label);
@@ -44,8 +54,9 @@ void assertWontThrow(const std::string &label,
 }
 
 template <typename FirstCompareType, typename SecondCompareType>
-void assertEqual(const std::string& label,
-        const FirstCompareType& a, const SecondCompareType& b)
+void assertEqualImpl(const std::string& label,
+        const FirstCompareType& a, const SecondCompareType& b,
+        const char* const /* function */, const char* const /* file */, int /* line */)
 {
     Controller &c = Controller::instance();
     c.beforeAssert(label);
@@ -56,15 +67,18 @@ void assertEqual(const std::string& label,
 }
 
 template <typename CompareType>
-void assertEqual(const std::string& label,
-        const CompareType& a, const CompareType& b)
+void assertEqualImpl(const std::string& label,
+        const CompareType& a, const CompareType& b,
+        const char* const function, const char* const file, int line)
 {
-    assertEqual<CompareType, CompareType>(label, a, b);
+    assertEqualImpl<CompareType, CompareType>(label, a, b, function, file, line);
 }
 
+// need separate assertNotEqual because operator!= may be overriden
 template <typename FirstCompareType, typename SecondCompareType>
-void assertNotEqual(const std::string& label,
-        const FirstCompareType& a, const SecondCompareType& b)
+void assertNotEqualImpl(const std::string& label,
+        const FirstCompareType& a, const SecondCompareType& b,
+        const char* const /* function */, const char* const /* file */, int /* line */)
 {
     Controller &c = Controller::instance();
     c.beforeAssert(label);
@@ -75,10 +89,11 @@ void assertNotEqual(const std::string& label,
 }
 
 template <typename CompareType>
-void assertNotEqual(const std::string& label,
-        const CompareType& a, const CompareType& b)
+void assertNotEqualImpl(const std::string& label,
+        const CompareType& a, const CompareType& b,
+        const char* const function, const char* const file, int line)
 {
-    assertNotEqual<CompareType, CompareType>(label, a, b);
+    assertNotEqualImpl<CompareType, CompareType>(label, a, b, function, file, line);
 }
 
 #endif /* TESTCPP_THROWS_H */

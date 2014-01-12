@@ -62,59 +62,60 @@ public:
 
     void test()
     {
-        Test::assertTrue("1 + 1 == 2 is true",
+        assertTrue("1 + 1 == 2 is true",
                 1 + 1 == 2);
 
-        Test::assertTrue("1 + 1 == 3 is true (must FAIL)",
+        assertTrue("1 + 1 == 3 is true (must FAIL)",
                 1 + 1 == 3);
 
-        Test::assertFalse("1 + 1 == 2 is false (must FAIL)",
+        assertFalse("1 + 1 == 2 is false (must FAIL)",
                 1 + 1 == 2);
 
-        Test::assertFalse("1 + 1 == 3 is false",
+        assertFalse("1 + 1 == 3 is false",
                 1 + 1 == 3);
 
-        Test::assertEqual<int>("1 + 1 == 2",
+        assertEqual("1 + 1 == 2",
                 1 + 1, 2);
 
-        Test::assertEqual<int>("1 + 1 == 3 (must FAIL)",
+        assertEqual("1 + 1 == 3 (must FAIL)",
                 1 + 1, 3);
 
-        Test::assertNotEqual<int>("1 + 1 != 2 (must FAIL)",
+        assertNotEqual("1 + 1 != 2 (must FAIL)",
                 1 + 1, 2);
 
-        Test::assertNotEqual<int>("1 + 1 != 3",
+        assertNotEqual("1 + 1 != 3",
                 1 + 1, 3);
 
-        Test::assertEqual<std::string>("\"abc\" == \"abc\"",
+        assertEqual("\"abc\" == \"abc\"",
                 "abc", "abc");
 
-        Test::assertWontThrow<TestSuite1, TestMethod>
-            ("won't throw exceptions",
+        assertWontThrow("won't throw exceptions",
+                TestSuite1, TestMethod,
                 *this, &TestSuite1::testObjectWontThrow);
 
-        Test::assertThrows<TestSuite1, TestMethod, std::logic_error>
-            ("throws logic_error",
+        assertThrows("throws logic_error",
+                TestSuite1, TestMethod, std::logic_error,
                 *this, &TestSuite1::testObjectThrows);
 
-        Test::assertWontThrow<TestSuite1, TestMethod>
-            ("throws logic_error (must FAIL)",
+        assertWontThrow("throws logic_error (must FAIL)",
+                TestSuite1, TestMethod,
                 *this, &TestSuite1::testObjectThrows);
 
-        Test::assertThrows<TestSuite1, TestMethod, std::logic_error>
-            ("doesn't throw logic_error (must FAIL)",
+        assertThrows("doesn't throw logic_error (must FAIL)",
+                TestSuite1, TestMethod, std::logic_error,
                 *this, &TestSuite1::testObjectWontThrow);
 
         // You can also use object-under-test methods directly.
         // This assert fails as the exception thrown is not std::runtime_error.
-        Test::assertThrows<Object, Object::Method, std::runtime_error>
-            ("throws logic_error instead of runtime_error (must FAIL)",
+        assertThrows("throws logic_error instead of runtime_error (must FAIL)",
+                Object, Object::Method, std::runtime_error,
                 _object, &Object::instanceMethodThrowsException);
 
         // The unhandled exception is caught, but stops the testsuite.
         testObjectThrows();
-        Test::assertTrue("not reached because of "
-                "the previous unhandled exception", true);
+
+        assertTrue("not reached because of the previous unhandled exception",
+                true);
     }
 
 private:
@@ -126,8 +127,7 @@ int main()
     // Example of running tests outside of a suite.
     // Controller initializes the StdOutView observer by default.
 
-    Test::assertTrue("1 - 1 == 0 is true",
-            1 - 1 == 0);
+    assertTrue("1 - 1 == 0 is true", 1 - 1 == 0);
 
     // Example of running a test suite.
     // Also demonstrate explicitly initializing the observer.

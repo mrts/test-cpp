@@ -62,6 +62,69 @@ public:
     }
 };
 
+void assertTrueImpl(const std::string& label, bool ok,
+        const char* const function, const char* const file, int line);
+
+template <typename CompareType>
+void assertEqualImpl(const std::string& label,
+        const CompareType& a, const CompareType& b,
+        const char* const function, const char* const file, int line);
+
+template <typename FirstCompareType, typename SecondCompareType>
+void assertEqualImpl(const std::string& label,
+        const FirstCompareType& a, const SecondCompareType& b,
+        const char* const function, const char* const file, int line);
+
+template <typename CompareType>
+void assertNotEqualImpl(const std::string& label,
+        const CompareType& a, const CompareType& b,
+        const char* const function, const char* const file, int line);
+
+template <typename FirstCompareType, typename SecondCompareType>
+void assertNotEqualImpl(const std::string& label,
+        const FirstCompareType& a, const SecondCompareType& b,
+        const char* const function, const char* const file, int line);
+
+template <class TestSuiteType,
+          typename TestMethodType,
+          typename ExceptionType>
+void assertThrowsImpl(const std::string &label,
+        TestSuiteType& testSuiteObject, TestMethodType testFunction,
+        const char* const function, const char* const file, int line);
+
+template <class TestSuiteType,
+          typename TestMethodType>
+void assertWontThrowImpl(const std::string &label,
+        TestSuiteType& testSuiteObject, TestMethodType testFunction,
+        const char* const function, const char* const file, int line);
+}
+
+// macros are in the global namespace
+
+#define assertTrue(label, ok) \
+    Test::assertTrueImpl(label, (ok), __FUNCTION__, __FILE__, __LINE__)
+
+#define assertFalse(label, ok) \
+    Test::assertTrueImpl(label, !(ok), __FUNCTION__, __FILE__, __LINE__)
+
+#define assertEqual(label, a, b) \
+    Test::assertEqualImpl(label, (a), (b), __FUNCTION__, __FILE__, __LINE__)
+
+#define assertNotEqual(label, a, b) \
+    Test::assertNotEqualImpl(label, (a), (b), __FUNCTION__, __FILE__, __LINE__)
+
+#define assertThrows(label, suitetype, functiontype, exceptiontype, \
+        suite, function) \
+    Test::assertThrowsImpl<suitetype, functiontype, exceptiontype> \
+    (label, suite, function, __FUNCTION__, __FILE__, __LINE__)
+
+#define assertWontThrow(label, suitetype, functiontype, \
+        suite, function) \
+    Test::assertWontThrowImpl<suitetype, functiontype> \
+    (label, suite, function, __FUNCTION__, __FILE__, __LINE__)
+
+namespace Test
+{
 
 /**
  * Interface for observing test progress. Suitable for displaying results,
@@ -94,32 +157,6 @@ public:
     virtual void onAllTestSuitesEnd(int lastTestSuiteNum, int testSuitesNumTotal, int numErrs, int numExcepts) = 0;
 };
 
-
-void assertTrue(const std::string& label, bool ok);
-
-inline void assertFalse(const std::string& label, bool ok)
-{ return assertTrue(label, !ok); }
-
-template <typename CompareType>
-void assertEqual(const std::string& label,
-        const CompareType& a, const CompareType& b);
-
-template <typename CompareType>
-void assertNotEqual(const std::string& label,
-        const CompareType& a, const CompareType& b);
-
-template <class TestSuiteType,
-          typename TestMethodType,
-          typename ExceptionType>
-void assertThrows(const std::string &label,
-                  TestSuiteType& testSuiteObject,
-                  TestMethodType testFunction);
-
-template <class TestSuiteType,
-          typename TestMethodType>
-void assertWontThrow(const std::string &label,
-                  TestSuiteType& testSuiteObject,
-                  TestMethodType testFunction);
 
 /** The singleton control class registers tests and controls execution. */
 class Controller
