@@ -91,27 +91,33 @@ void assertWontThrowImpl(const std::string &label,
 
 // macros are in the global namespace
 
+#ifdef _WIN32
+#define function__ __FUNCTION__
+#else
+#define function__ __PRETTY_FUNCTION__
+#endif
+
 #define assertTrue(label, ok) \
-    Test::assertTrueImpl(label, (ok), __FUNCTION__, __FILE__, __LINE__)
+    Test::assertTrueImpl(label, (ok), function__, __FILE__, __LINE__)
 
 #define assertFalse(label, ok) \
-    Test::assertTrueImpl(label, !(ok), __FUNCTION__, __FILE__, __LINE__)
+    Test::assertTrueImpl(label, !(ok), function__, __FILE__, __LINE__)
 
 #define assertEqual(label, a, b) \
-    Test::assertEqualImpl(label, (a), (b), __FUNCTION__, __FILE__, __LINE__)
+    Test::assertEqualImpl(label, (a), (b), function__, __FILE__, __LINE__)
 
 #define assertNotEqual(label, a, b) \
-    Test::assertNotEqualImpl(label, (a), (b), __FUNCTION__, __FILE__, __LINE__)
+    Test::assertNotEqualImpl(label, (a), (b), function__, __FILE__, __LINE__)
 
 #define assertThrows(label, suitetype, functiontype, exceptiontype, \
         suite, function) \
     Test::assertThrowsImpl<suitetype, functiontype, exceptiontype> \
-    (label, suite, function, __FUNCTION__, __FILE__, __LINE__)
+    (label, suite, function, function__, __FILE__, __LINE__)
 
 #define assertWontThrow(label, suitetype, functiontype, \
         suite, function) \
     Test::assertWontThrowImpl<suitetype, functiontype> \
-    (label, suite, function, __FUNCTION__, __FILE__, __LINE__)
+    (label, suite, function, function__, __FILE__, __LINE__)
 
 namespace Test
 {
