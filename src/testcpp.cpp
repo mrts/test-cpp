@@ -8,6 +8,7 @@ namespace Test
 
 Controller::Controller() :
     _observer(new StdOutView),
+    _doesOwnObserver(true),
     _testSuiteFactories(),
     _curTestSuite(0),
     _curTestSuiteErrs(0),

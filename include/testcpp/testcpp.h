@@ -65,19 +65,9 @@ public:
 void assertTrueImpl(const std::string& label, bool ok,
         const char* const function, const char* const file, int line);
 
-template <typename CompareType>
-void assertEqualImpl(const std::string& label,
-        const CompareType& a, const CompareType& b,
-        const char* const function, const char* const file, int line);
-
 template <typename FirstCompareType, typename SecondCompareType>
 void assertEqualImpl(const std::string& label,
         const FirstCompareType& a, const SecondCompareType& b,
-        const char* const function, const char* const file, int line);
-
-template <typename CompareType>
-void assertNotEqualImpl(const std::string& label,
-        const CompareType& a, const CompareType& b,
         const char* const function, const char* const file, int line);
 
 template <typename FirstCompareType, typename SecondCompareType>
@@ -142,9 +132,12 @@ public:
     virtual void onTestSuiteEndWithStdException(int numErrs, const std::exception& e) = 0;
     virtual void onTestSuiteEndWithEllipsisException(int numErrs) = 0;
 
-    virtual void onAssertBegin(const std::string& testlabel) = 0;
-    virtual void onAssertExceptionBegin(const std::string& testlabel) = 0;
-    virtual void onAssertNoExceptionBegin(const std::string& testlabel) = 0;
+    virtual void onAssertBegin(const std::string& testlabel,
+        const char* const function, const char* const file, int line) = 0;
+    virtual void onAssertExceptionBegin(const std::string& testlabel,
+        const char* const function, const char* const file, int line) = 0;
+    virtual void onAssertNoExceptionBegin(const std::string& testlabel,
+        const char* const function, const char* const file, int line) = 0;
 
     virtual void onAssertEnd(bool ok) = 0;
     virtual void onAssertExceptionEndWithExpectedException(const std::exception& e) = 0;
@@ -179,8 +172,9 @@ public:
 
     int run();
 
-    void beforeAssert(const std::string& label)
-    { _observer->onAssertBegin(label); }
+    void beforeAssert(const std::string& label,
+        const char* const function, const char* const file, int line)
+    { _observer->onAssertBegin(label, function, file, line); }
 
     void afterAssert(bool ok)
     {
@@ -189,8 +183,9 @@ public:
         _observer->onAssertEnd(ok);
     }
 
-    void beforeAssertException(const std::string& label)
-    { _observer->onAssertExceptionBegin(label); }
+    void beforeAssertException(const std::string& label,
+        const char* const function, const char* const file, int line)
+    { _observer->onAssertExceptionBegin(label, function, file, line); }
 
     void onAssertExceptionEndWithExpectedException(const std::exception& e)
     { _observer->onAssertExceptionEndWithExpectedException(e); }
@@ -204,8 +199,9 @@ public:
             _observer->onAssertExceptionEndWithEllipsisException();
     }
 
-    void beforeAssertNoException(const std::string& label)
-    { _observer->onAssertNoExceptionBegin(label); }
+    void beforeAssertNoException(const std::string& label,
+        const char* const function, const char* const file, int line)
+    { _observer->onAssertNoExceptionBegin(label, function, file, line); }
 
     void onAssertNoExceptionEndWithException(const std::exception* e = 0)
     {

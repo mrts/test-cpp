@@ -60,7 +60,6 @@ public:
     {
         *this << "Test suite '" << suiteName << "' (#" << num
               << "/" << total << "):" << END_LINE;
-        _suiteName = suiteName;
     }
 
     virtual void onTestSuiteEnd(int numErrs)
@@ -101,17 +100,24 @@ public:
               << numErrs << " non-exception errors" << END_LINE;
     }
 
-    virtual void onAssertBegin(const std::string& testlabel)
-    { *this << TAB << "test '" << testlabel << "': ... "; }
+    virtual void onAssertBegin(const std::string& testlabel,
+        const char* const function, const char* const file, int line)
+    { outputAssertBegin("", testlabel, function, file, line); }
 
-    virtual void onAssertExceptionBegin(const std::string& testlabel)
-    { *this << TAB << "test exception '" << testlabel << "': ... "; }
+    virtual void onAssertExceptionBegin(const std::string& testlabel,
+        const char* const function, const char* const file, int line)
+    { outputAssertBegin("exception ", testlabel, function, file, line); }
 
-    virtual void onAssertNoExceptionBegin(const std::string& testlabel)
-    { *this << TAB << "test no exception '" << testlabel << "': ... "; }
+    virtual void onAssertNoExceptionBegin(const std::string& testlabel,
+        const char* const function, const char* const file, int line)
+    { outputAssertBegin("no exception ", testlabel, function, file, line); }
 
     virtual void onAssertEnd(bool ok)
-    { *this << outputOkOrFail(ok) << END_LINE; }
+    {
+        *this << outputOkOrFail(ok) << END_LINE;
+        if (!ok)
+            outputFailureLocation();
+    }
 
     virtual void onAssertExceptionEndWithExpectedException(const std::exception& e)
     { assertExceptionEnd(true, e); }
@@ -123,6 +129,7 @@ public:
     {
         *this << FAIL << "FAIL" << NORMAL
               << ": unexpected non-standard exception" << END_LINE;
+        outputFailureLocation();
     }
 
     virtual void onAssertNoExceptionEndWithStdException(const std::exception& e)
@@ -131,6 +138,7 @@ public:
               << ": unexpected exception";
 
         outputException(e);
+        outputFailureLocation();
     }
 
     virtual void onAssertNoExceptionEndWithEllipsisException()
@@ -138,15 +146,20 @@ public:
         onAssertExceptionEndWithEllipsisException();
     }
 
-protected:
-
-    std::string _suiteName;
-
 private:
 
     void outputSeparator()
     {
         *this << TAB << "---" << END_LINE;
+    }
+
+    void outputAssertBegin(const char* const what, const std::string& label,
+        const char* const function, const char* const file, int line)
+    {
+        _function = function;
+        _file = file;
+        _line = line;
+        *this << TAB << "test " << what << "'" << label << "': ... ";
     }
 
     void outputException(const std::exception& e)
@@ -187,11 +200,24 @@ private:
         *this << END_LINE;
         outputExceptionMessage(e.what());
         *this << END_LINE;
+
+        if (!ok)
+            outputFailureLocation();
     }
 
     void outputExceptionMessage(const std::string& exceptionMsg)
     { *this << TAB << TAB << "(message: '" << exceptionMsg << "')"; }
 
+    void outputFailureLocation()
+    {
+        *this << TAB << TAB << "in " << _file
+              << "(" << _line << "): "
+              << _function << END_LINE;
+    }
+
+    std::string _function;
+    std::string _file;
+    int _line;
 };
 
 }
