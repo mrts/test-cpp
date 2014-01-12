@@ -30,18 +30,13 @@ namespace Test
 {
 
 class Suite;
-class Observer;
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
   typedef std::unique_ptr<Suite> suite_transferable_ptr;
   typedef std::unique_ptr<Suite> suite_scoped_ptr;
-  typedef std::unique_ptr<Observer> observer_transferable_ptr;
-  typedef std::unique_ptr<Observer> observer_scoped_ptr;
 #else
   typedef std::auto_ptr<Suite> suite_transferable_ptr;
   typedef utilcpp::scoped_ptr<Suite> suite_scoped_ptr;
-  typedef std::auto_ptr<Observer> observer_transferable_ptr;
-  typedef utilcpp::scoped_ptr<Observer> observer_scoped_ptr;
 #endif
 
 /**
@@ -125,26 +120,24 @@ template <class TestSuiteType,
 void assertWontThrow(const std::string &label,
                   TestSuiteType& testSuiteObject,
                   TestMethodType testFunction);
-#endif
 
-/** The control class registers tests and controls execution. */
+/** The singleton control class registers tests and controls execution. */
 class Controller
 {
-    UTILCPP_DECLARE_SINGLETON(Controller)
-
 public:
+    static Controller& instance();
+
     typedef suite_transferable_ptr (*TestSuiteFactoryFunction)();
 
     void addTestSuite(const std::string &label, TestSuiteFactoryFunction ffn)
     { _testSuiteFactories[label] = ffn; }
 
-    void setObserver(observer_transferable_ptr v)
+    void setObserver(Observer* observer, bool takeOwnership = true)
     {
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
-        _observer = std::move(v);
-#else
-        _observer = v;
-#endif
+        if (!observer)
+            throw std::runtime_error("Observer cannot be null");
+        _doesOwnObserver = takeOwnership;
+        _observer = observer;
     }
 
     int run();
@@ -187,7 +180,18 @@ public:
     }
 
 private:
-    observer_scoped_ptr _observer;
+    Controller();
+    Controller(const Controller&);
+    Controller& operator=(const Controller&);
+    ~Controller()
+    {
+        if (_doesOwnObserver)
+            delete _observer;
+    }
+
+    Observer* _observer;
+    bool _doesOwnObserver;
+
     std::map<std::string, TestSuiteFactoryFunction> _testSuiteFactories;
 
     int _curTestSuite;

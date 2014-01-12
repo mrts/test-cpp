@@ -133,7 +133,7 @@ int main()
     // Also demonstrate explicitly initializing the observer.
 
     Test::Controller &c = Test::Controller::instance();
-    c.setObserver(Test::observer_transferable_ptr(new Test::ColoredStdOutView));
+    c.setObserver(new Test::ColoredStdOutView);
 
     c.addTestSuite("testsuite1", Test::Suite::instance<TestSuite1>);
 
