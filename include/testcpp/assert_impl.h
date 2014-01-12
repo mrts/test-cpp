@@ -43,9 +43,9 @@ void assertWontThrow(const std::string &label,
     }
 }
 
-template <typename CompareType>
+template <typename FirstCompareType, typename SecondCompareType>
 void assertEqual(const std::string& label,
-        const CompareType& a, const CompareType& b)
+        const FirstCompareType& a, const SecondCompareType& b)
 {
     Controller &c = Controller::instance();
     c.beforeAssert(label);
@@ -56,19 +56,29 @@ void assertEqual(const std::string& label,
 }
 
 template <typename CompareType>
-void assertNotEqual(const std::string& label,
+void assertEqual(const std::string& label,
         const CompareType& a, const CompareType& b)
 {
-    Controller& c = Controller::instance();
+    assertEqual<CompareType, CompareType>(label, a, b);
+}
 
-    c._observer->onAssertBegin(label);
+template <typename FirstCompareType, typename SecondCompareType>
+void assertNotEqual(const std::string& label,
+        const FirstCompareType& a, const SecondCompareType& b)
+{
+    Controller &c = Controller::instance();
+    c.beforeAssert(label);
 
     bool ok = (a != b);
 
-    if (!ok)
-        ++c._curTestSuiteErrs;
+    c.afterAssert(ok);
+}
 
-    c._observer->onAssertEnd(ok);
+template <typename CompareType>
+void assertNotEqual(const std::string& label,
+        const CompareType& a, const CompareType& b)
+{
+    assertNotEqual<CompareType, CompareType>(label, a, b);
 }
 
 #endif /* TESTCPP_THROWS_H */
