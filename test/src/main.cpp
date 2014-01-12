@@ -139,8 +139,10 @@ int main()
 
     int numErrors = c.run();
 
+#ifdef ASK_FOR_PRESS_ENTER_BEFORE_EXIT
     std::cout << "Press ENTER to exit" << std::endl;
     std::cin.get();
+#endif
 
     return numErrors;
 }
