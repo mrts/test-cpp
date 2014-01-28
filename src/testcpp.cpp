@@ -1,8 +1,6 @@
 #include <testcpp/testcpp.h>
 #include <testcpp/StdOutView.h>
 
-#include <typeinfo>
-
 namespace Test
 {
 
@@ -29,8 +27,7 @@ int Controller::run()
 
     _observer->onAllTestSuitesBegin(testSuiteCount);
 
-    typedef std::map<std::string, TestSuiteFactoryFunction>::iterator
-        TestSuiteFactoryIter;
+    typedef std::vector<LabelAndFactoryFunctionPair>::iterator TestSuiteFactoryIter;
 
     for (TestSuiteFactoryIter i = _testSuiteFactories.begin(), end = _testSuiteFactories.end();
             i != end; ++i) {

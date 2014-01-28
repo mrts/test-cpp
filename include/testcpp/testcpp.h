@@ -20,10 +20,10 @@
 #endif
 
 #include <string>
+#include <vector>
 #include <memory>
-#include <map>
+#include <utility>
 
-#include <typeinfo>
 #include <exception>
 
 namespace Test
@@ -164,9 +164,10 @@ public:
     static Controller& instance();
 
     typedef suite_transferable_ptr (*TestSuiteFactoryFunction)();
+    typedef std::pair<std::string, TestSuiteFactoryFunction> LabelAndFactoryFunctionPair;
 
     void addTestSuite(const std::string &label, TestSuiteFactoryFunction ffn)
-    { _testSuiteFactories[label] = ffn; }
+    { _testSuiteFactories.push_back(LabelAndFactoryFunctionPair(label, ffn)); }
 
     void setObserver(Observer* observer, bool takeOwnership = true)
     {
@@ -231,7 +232,7 @@ private:
     Observer* _observer;
     bool _doesOwnObserver;
 
-    std::map<std::string, TestSuiteFactoryFunction> _testSuiteFactories;
+    std::vector<LabelAndFactoryFunctionPair> _testSuiteFactories;
 
     int _curTestSuite;
     int _curTestSuiteErrs;
