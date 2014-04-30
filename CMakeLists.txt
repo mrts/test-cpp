@@ -31,6 +31,6 @@ IF(WIN32)
 ELSE(WIN32)
 
   SET(CMAKE_CXX_COMPILER clang++)
-  ADD_DEFINITIONS("-Wall -Werror")
+  ADD_DEFINITIONS("-Wall -Werror -ferror-limit=5")
 
 ENDIF(WIN32)
