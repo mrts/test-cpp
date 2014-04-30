@@ -97,27 +97,84 @@ void assertWontThrowImpl(const std::string &label,
 #define function__ __PRETTY_FUNCTION__
 #endif
 
-#define assertTrue(label, ok) \
-    Test::assertTrueImpl(label, (ok), function__, __FILE__, __LINE__)
+#define GET_MACRO_OVERLOAD(_1, _2, _3, _4, _5, _6, NAME, ...) NAME
 
-#define assertFalse(label, ok) \
-    Test::assertTrueImpl(label, !(ok), function__, __FILE__, __LINE__)
+#define assertTrue1(ok__) \
+    Test::assertTrueImpl(#ok__, (ok__), function__, __FILE__, __LINE__)
 
-#define assertEqual(label, a, b) \
-    Test::assertEqualImpl(label, (a), (b), function__, __FILE__, __LINE__)
+#define assertTrue2(label__, ok__) \
+    Test::assertTrueImpl(label__, (ok__), function__, __FILE__, __LINE__)
 
-#define assertNotEqual(label, a, b) \
-    Test::assertNotEqualImpl(label, (a), (b), function__, __FILE__, __LINE__)
+#define assertTrue(...) \
+    GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, _, \
+            assertTrue2, assertTrue1)(__VA_ARGS__)
 
-#define assertThrows(label, suitetype, functiontype, exceptiontype, \
-        suite, function) \
-    Test::assertThrowsImpl<suitetype, functiontype, exceptiontype> \
-    (label, suite, function, function__, __FILE__, __LINE__)
 
-#define assertWontThrow(label, suitetype, functiontype, \
-        suite, function) \
-    Test::assertWontThrowImpl<suitetype, functiontype> \
-    (label, suite, function, function__, __FILE__, __LINE__)
+#define assertFalse1(ok__) \
+    Test::assertTrueImpl("!("#ok__")", !(ok__), function__, __FILE__, __LINE__)
+
+#define assertFalse2(label__, ok__) \
+    Test::assertTrueImpl(label__, !(ok__), function__, __FILE__, __LINE__)
+
+#define assertFalse(...) \
+    GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, _, \
+            assertFalse2, assertFalse1)(__VA_ARGS__)
+
+
+#define assertEqual1(a__, b__) \
+    Test::assertEqualImpl(#a__ " == " #b__, (a__), (b__), \
+            function__, __FILE__, __LINE__)
+
+#define assertEqual2(label__, a__, b__) \
+    Test::assertEqualImpl(label__, (a__), (b__), function__, __FILE__, __LINE__)
+
+#define assertEqual(...) \
+    GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, \
+            assertEqual2, assertEqual1)(__VA_ARGS__)
+
+
+#define assertNotEqual1(a__, b__) \
+    Test::assertNotEqualImpl(#a__ " != " #b__, (a__), (b__), \
+            function__, __FILE__, __LINE__)
+
+#define assertNotEqual2(label__, a__, b__) \
+    Test::assertNotEqualImpl(label__, (a__), (b__), \
+            function__, __FILE__, __LINE__)
+
+#define assertNotEqual(...) \
+    GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, \
+            assertNotEqual2, assertNotEqual1)(__VA_ARGS__)
+
+
+#define assertThrows1(suitetype__, functiontype__, exceptiontype__, \
+        object__, functionptr__) \
+    Test::assertThrowsImpl<suitetype__, functiontype__, exceptiontype__> \
+    (#functionptr__ " throws " #exceptiontype__, \
+     object__, functionptr__, function__, __FILE__, __LINE__)
+
+#define assertThrows2(label__, suitetype__, functiontype__, exceptiontype__, \
+        object__, functionptr__) \
+    Test::assertThrowsImpl<suitetype__, functiontype__, exceptiontype__> \
+    (label__, object__, functionptr__, function__, __FILE__, __LINE__)
+
+#define assertThrows(...) \
+    GET_MACRO_OVERLOAD(__VA_ARGS__, assertThrows2, assertThrows1)(__VA_ARGS__)
+
+
+#define assertWontThrow1(suitetype__, functiontype__, \
+        object__, functionptr__) \
+    Test::assertWontThrowImpl<suitetype__, functiontype__> \
+    (#functionptr__ " won't throw", \
+     object__, functionptr__, function__, __FILE__, __LINE__)
+
+#define assertWontThrow2(label__, suitetype__, functiontype__, \
+        object__, functionptr__) \
+    Test::assertWontThrowImpl<suitetype__, functiontype__> \
+    (label__, object__, functionptr__, function__, __FILE__, __LINE__)
+
+#define assertWontThrow(...) \
+    GET_MACRO_OVERLOAD(__VA_ARGS__, _, \
+            assertWontThrow2, assertWontThrow1)(__VA_ARGS__)
 
 namespace Test
 {
