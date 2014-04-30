@@ -17,7 +17,7 @@ class Object
 
 public:
     // must define method pointer signature when using C++03
-    typedef void (Object::*Method)();
+    TESTCPP_TYPEDEF_TESTMETHOD(Object)
 
     Object():
         _ctr(0)
@@ -39,7 +39,7 @@ class TestSuite1 : public Test::Suite
 
 public:
     // must define method pointer signature when using C++03
-    typedef void (TestSuite1::*TestMethod)();
+    TESTCPP_TYPEDEF_TESTMETHOD(TestSuite1)
 
     // setUp() happens in the constructor
     TestSuite1() :
@@ -125,9 +125,9 @@ public:
         // You can also use object-under-test methods directly.
         // This assert fails as the exception thrown is not std::runtime_error.
         assertThrows("throws logic_error instead of runtime_error (must FAIL)",
-                Object, Object::Method, std::runtime_error,
+                Object, Object::TestMethod, std::runtime_error,
                 _object, &Object::instanceMethodThrowsException);
-        assertThrows(Object, Object::Method, std::runtime_error,
+        assertThrows(Object, Object::TestMethod, std::runtime_error,
                 _object, &Object::instanceMethodThrowsException);
 
         // The unhandled exception is caught, but stops the testsuite.

@@ -97,6 +97,9 @@ void assertWontThrowImpl(const std::string &label,
 #define function__ __PRETTY_FUNCTION__
 #endif
 
+#define TESTCPP_TYPEDEF_TESTMETHOD(classname__) \
+    typedef void (classname__::*TestMethod)();
+
 #define GET_MACRO_OVERLOAD(_1, _2, _3, _4, _5, _6, NAME, ...) NAME
 
 #define assertTrue1(ok__) \
