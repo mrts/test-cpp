@@ -100,6 +100,8 @@ void assertWontThrowImpl(const std::string &label,
 #define TESTCPP_TYPEDEF_TESTMETHOD(classname__) \
     typedef void (classname__::*TestMethod)();
 
+// http://stackoverflow.com/questions/5530505/why-does-this-variadic-argument-count-macro-fail-with-vc
+#define EXPAND_MACRO(x__) x__
 #define GET_MACRO_OVERLOAD(_1, _2, _3, _4, _5, _6, NAME, ...) NAME
 
 #define assertTrue1(ok__) \
@@ -109,8 +111,8 @@ void assertWontThrowImpl(const std::string &label,
     Test::assertTrueImpl(label__, (ok__), function__, __FILE__, __LINE__)
 
 #define assertTrue(...) \
-    GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, _, \
-            assertTrue2, assertTrue1)(__VA_ARGS__)
+    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, _, \
+            assertTrue2, assertTrue1)(__VA_ARGS__))
 
 
 #define assertFalse1(ok__) \
@@ -120,8 +122,8 @@ void assertWontThrowImpl(const std::string &label,
     Test::assertTrueImpl(label__, !(ok__), function__, __FILE__, __LINE__)
 
 #define assertFalse(...) \
-    GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, _, \
-            assertFalse2, assertFalse1)(__VA_ARGS__)
+    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, _, \
+            assertFalse2, assertFalse1)(__VA_ARGS__))
 
 
 #define assertEqual1(a__, b__) \
@@ -132,8 +134,8 @@ void assertWontThrowImpl(const std::string &label,
     Test::assertEqualImpl(label__, (a__), (b__), function__, __FILE__, __LINE__)
 
 #define assertEqual(...) \
-    GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, \
-            assertEqual2, assertEqual1)(__VA_ARGS__)
+    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, \
+            assertEqual2, assertEqual1)(__VA_ARGS__))
 
 
 #define assertNotEqual1(a__, b__) \
@@ -145,8 +147,8 @@ void assertWontThrowImpl(const std::string &label,
             function__, __FILE__, __LINE__)
 
 #define assertNotEqual(...) \
-    GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, \
-            assertNotEqual2, assertNotEqual1)(__VA_ARGS__)
+    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, \
+            assertNotEqual2, assertNotEqual1)(__VA_ARGS__))
 
 
 #define assertThrows1(suitetype__, functiontype__, exceptiontype__, \
@@ -161,7 +163,8 @@ void assertWontThrowImpl(const std::string &label,
     (label__, object__, functionptr__, function__, __FILE__, __LINE__)
 
 #define assertThrows(...) \
-    GET_MACRO_OVERLOAD(__VA_ARGS__, assertThrows2, assertThrows1)(__VA_ARGS__)
+    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, \
+			assertThrows2, assertThrows1)(__VA_ARGS__))
 
 
 #define assertWontThrow1(suitetype__, functiontype__, \
@@ -176,8 +179,8 @@ void assertWontThrowImpl(const std::string &label,
     (label__, object__, functionptr__, function__, __FILE__, __LINE__)
 
 #define assertWontThrow(...) \
-    GET_MACRO_OVERLOAD(__VA_ARGS__, _, \
-            assertWontThrow2, assertWontThrow1)(__VA_ARGS__)
+    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, \
+            assertWontThrow2, assertWontThrow1)(__VA_ARGS__))
 
 namespace Test
 {
