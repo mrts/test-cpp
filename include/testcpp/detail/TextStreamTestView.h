@@ -211,7 +211,8 @@ private:
 
     void outputFailureLocation()
     {
-        *this << TAB << TAB << "in " << _file
+        *this << TAB << TAB << "in " << END_LINE << TAB << TAB
+              << _file
               << "(" << _line << "): "
               << _function << END_LINE;
     }
