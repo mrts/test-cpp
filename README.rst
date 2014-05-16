@@ -144,25 +144,25 @@ results in the following output::
     test '1 + 1 == 2': ... OK
     test '1 + 1 == 3 is true (fails)': ... FAIL
       in
-      e:\devel\experiments\cpp\ioc-cpp\test\src\main.cpp(19): TestSuite1::test
+      c:\path\to\ioc-cpp\test\src\main.cpp(19): TestSuite1::test
     test '1 + 1 equals 2': ... OK
     test '1 + 1 == 2': ... OK
     test '1 + 1 equals 3 (fails)': ... FAIL
       in
-      e:\devel\experiments\cpp\ioc-cpp\test\src\main.cpp(24): TestSuite1::test
+      c:\path\to\ioc-cpp\test\src\main.cpp(24): TestSuite1::test
     test exception 'throws logic_error': ... OK
       (message: 'exception message')
     test exception '&TestSuite1::testException throws std::logic_error': ...  OK
       (message: 'exception message')
     test exception 'doesn't throw logic_error (fails)': ... FAIL
       in
-      e:\devel\experiments\cpp\ioc-cpp\test\src\main.cpp(34): TestSuite1::test
+      c:\path\to\ioc-cpp\test\src\main.cpp(34): TestSuite1::test
     test no exception 'doesn't throw any exceptions': ... OK
     test no exception '&TestSuite1::testNoException won't throw': ... OK
     test no exception 'throws logic_error': ... FAIL: unexpected exception 'class std::logic_error'
       (message: 'exception message')
       in
-      e:\devel\experiments\cpp\ioc-cpp\test\src\main.cpp(44): TestSuite1::test
+      c:\path\to\ioc-cpp\test\src\main.cpp(44): TestSuite1::test
     ---
     Unhandled exception 'class std::logic_error'
       (message: 'exception message')
