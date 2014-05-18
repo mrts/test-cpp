@@ -15,7 +15,8 @@
 #define TESTCPP_H__
 
 #include <utilcpp/declarations.h>
-#if !(defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L))
+#include <utilcpp/detect_cpp11.h>
+#ifndef UTILCPP_HAVE_CPP11
   #include <utilcpp/scoped_ptr.h>
 #endif
 
@@ -30,13 +31,18 @@ namespace Test
 {
 
 class Suite;
+class AssertType;
 
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) || (__cplusplus > 199711L)
+#ifdef UTILCPP_HAVE_CPP11
   typedef std::unique_ptr<Suite> suite_transferable_ptr;
   typedef std::unique_ptr<Suite> suite_scoped_ptr;
+  typedef std::unique_ptr<AssertType> asserttype_transferable_ptr;
+  typedef std::unique_ptr<AssertType> asserttype_scoped_ptr;
 #else
   typedef std::auto_ptr<Suite> suite_transferable_ptr;
   typedef utilcpp::scoped_ptr<Suite> suite_scoped_ptr;
+  typedef std::auto_ptr<AssertType> asserttype_transferable_ptr;
+  typedef utilcpp::scoped_ptr<AssertType> asserttype_scoped_ptr;
 #endif
 
 /**
@@ -185,6 +191,15 @@ void assertWontThrowImpl(const std::string &label,
 namespace Test
 {
 
+class AssertType
+{
+    UTILCPP_DECLARE_INTERFACE(AssertType)
+
+    public:
+        virtual std::string name() = 0;
+        virtual std::string label() = 0;
+};
+
 /**
  * Interface for observing test progress. Suitable for displaying results,
  * timing etc.
@@ -201,11 +216,8 @@ public:
     virtual void onTestSuiteEndWithStdException(int numErrs, const std::exception& e) = 0;
     virtual void onTestSuiteEndWithEllipsisException(int numErrs) = 0;
 
-    virtual void onAssertBegin(const std::string& testlabel,
-        const char* const function, const char* const file, int line) = 0;
-    virtual void onAssertExceptionBegin(const std::string& testlabel,
-        const char* const function, const char* const file, int line) = 0;
-    virtual void onAssertNoExceptionBegin(const std::string& testlabel,
+    virtual void onAssertBegin(asserttype_transferable_ptr& assertType,
+        const std::string& testlabel,
         const char* const function, const char* const file, int line) = 0;
 
     virtual void onAssertEnd(bool ok) = 0;
@@ -242,9 +254,10 @@ public:
 
     int run();
 
-    void beforeAssert(const std::string& label,
+    void beforeAssert(asserttype_transferable_ptr& assertType,
+        const std::string& testlabel,
         const char* const function, const char* const file, int line)
-    { _observer->onAssertBegin(label, function, file, line); }
+    { _observer->onAssertBegin(assertType, testlabel, function, file, line); }
 
     void afterAssert(bool ok)
     {
@@ -252,10 +265,6 @@ public:
             ++_curTestSuiteErrs;
         _observer->onAssertEnd(ok);
     }
-
-    void beforeAssertException(const std::string& label,
-        const char* const function, const char* const file, int line)
-    { _observer->onAssertExceptionBegin(label, function, file, line); }
 
     void onAssertExceptionEndWithExpectedException(const std::exception& e)
     { _observer->onAssertExceptionEndWithExpectedException(e); }
@@ -268,10 +277,6 @@ public:
         else
             _observer->onAssertExceptionEndWithEllipsisException();
     }
-
-    void beforeAssertNoException(const std::string& label,
-        const char* const function, const char* const file, int line)
-    { _observer->onAssertNoExceptionBegin(label, function, file, line); }
 
     void onAssertNoExceptionEndWithException(const std::exception* e = 0)
     {

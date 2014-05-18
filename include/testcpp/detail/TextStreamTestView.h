@@ -101,17 +101,21 @@ public:
               << numErrs << " non-exception errors" << END_LINE;
     }
 
-    virtual void onAssertBegin(const std::string& testlabel,
+    virtual void onAssertBegin(asserttype_transferable_ptr& assertType,
+        const std::string& testlabel,
         const char* const function, const char* const file, int line)
-    { outputAssertBegin("", testlabel, function, file, line); }
-
-    virtual void onAssertExceptionBegin(const std::string& testlabel,
-        const char* const function, const char* const file, int line)
-    { outputAssertBegin("exception ", testlabel, function, file, line); }
-
-    virtual void onAssertNoExceptionBegin(const std::string& testlabel,
-        const char* const function, const char* const file, int line)
-    { outputAssertBegin("no exception ", testlabel, function, file, line); }
+    {
+#ifdef UTILCPP_HAVE_CPP11
+        _assertType = std::move(assertType);
+#else
+        _assertType = assertType;
+#endif
+        _function = function;
+        _file = file;
+        _line = line;
+        *this << TAB << "test " << _assertType->label()
+              <<"'" << testlabel << "': ... ";
+    }
 
     virtual void onAssertEnd(bool ok)
     {
@@ -152,15 +156,6 @@ private:
     void outputSeparator()
     {
         *this << TAB << "---" << END_LINE;
-    }
-
-    void outputAssertBegin(const char* const what, const std::string& label,
-        const char* const function, const char* const file, int line)
-    {
-        _function = function;
-        _file = file;
-        _line = line;
-        *this << TAB << "test " << what << "'" << label << "': ... ";
     }
 
     void outputException(const std::exception& e)
@@ -212,11 +207,11 @@ private:
     void outputFailureLocation()
     {
         *this << TAB << TAB << "in " << END_LINE << TAB << TAB
-              << _file
-              << "(" << _line << "): "
-              << _function << END_LINE;
+              << _file << "(" << _line << "): "
+              << _assertType->name() << " failed in " << _function << END_LINE;
     }
 
+    asserttype_scoped_ptr _assertType;
     std::string _function;
     std::string _file;
     int _line;
