@@ -47,19 +47,27 @@ Visual Studio integration
 `CMake`_ will generate Visual Studio project files into ``lib`` that can be
 added into Visual Studio solutions.
 
-The best way to run the test suite is to add the corresponding post-build event
-to the test-suite project (*Project -> Properties -> Build Events -> Post-Build
-Event -> Command Line: $(TargetDir)$(TargetFileName)*). The benefit of this
-approach is that you can open failing tests by double-clicking on the failure
-location in the output window. Be sure to specify the ``/FC`` (use full path for
-``__FILE__``) compiler option for the test suite project in this case (*Project
--> Properties -> C/C++ -> Advanced -> Use Full Paths: Yes (/FC)*).
+The best way to run the test suite in a Visual Studio solution is to add the
+corresponding post-build event to the test-suite project (*Project →
+Properties → Build Events → Post-Build Event → Command Line:
+$(TargetDir)$(TargetFileName)*). The benefit of this approach is that you get
+immediate red visual feedback on failure and can open failing tests by
+double-clicking on the failure location in the error list window as follows:
+
+.. image:: https://raw.githubusercontent.com/mrts/test-cpp/master/doc/error-list.png
+
+Be sure to set the ``/FC`` (use full path for ``__FILE__``) compiler option for
+the test suite project in this case (*Project → Properties → C/C++ →
+Advanced → Use Full Paths: Yes (/FC)*). It is also helpful to always show the
+error list window if there are any unit test errors (*Tools → Options →
+Projects and Solutions → Always show Error List if build finishes with
+errors*).
 
 The solution file from the `win32-asyncconnect project`_ can be used as the
 example for integrating ``test-cpp`` to solutions. It also contains a `test
 runner`_.
 
-Alternatively, for a nice colorful change-compile-test experience, use
+Alternatively, for another nice colorful change-compile-test experience, use
 ``Test::ColoredStdOutView`` in the test runner and set the test runner as
 startup project so that the colored console application will be run when you
 press ``CTRL-F5`` (``CTRL-F5`` keeps the console open).
@@ -143,26 +151,22 @@ results in the following output::
     test '1 + 1 == 2 is true': ... OK
     test '1 + 1 == 2': ... OK
     test '1 + 1 == 3 is true (fails)': ... FAIL
-      in
-      c:\path\to\ioc-cpp\test\src\main.cpp(19): TestSuite1::test
+      c:\path\to\test-cpp\test\src\main.cpp(78): error: assertTrue failed in TestSuite1::test
     test '1 + 1 equals 2': ... OK
     test '1 + 1 == 2': ... OK
     test '1 + 1 equals 3 (fails)': ... FAIL
-      in
-      c:\path\to\ioc-cpp\test\src\main.cpp(24): TestSuite1::test
-    test exception 'throws logic_error': ... OK
+      c:\path\to\test-cpp\test\src\main.cpp(83): error: assertEqual failed in TestSuite1::test
+    test 'throws logic_error': ... OK
       (message: 'exception message')
-    test exception '&TestSuite1::testException throws std::logic_error': ...  OK
+    test '&TestSuite1::testException throws std::logic_error': ... OK
       (message: 'exception message')
-    test exception 'doesn't throw logic_error (fails)': ... FAIL
-      in
-      c:\path\to\ioc-cpp\test\src\main.cpp(34): TestSuite1::test
-    test no exception 'doesn't throw any exceptions': ... OK
-    test no exception '&TestSuite1::testNoException won't throw': ... OK
-    test no exception 'throws logic_error': ... FAIL: unexpected exception 'class std::logic_error'
+    test 'doesn't throw logic_error (fails)': ... FAIL
+      c:\path\to\test-cpp\test\src\main.cpp(93): error: assertThrows failed in TestSuite1::test
+    test 'doesn't throw any exceptions': ... OK
+    test '&TestSuite1::testNoException won't throw': ... OK
+    test 'throws logic_error': ... FAIL: unexpected exception 'class std::logic_error'
       (message: 'exception message')
-      in
-      c:\path\to\ioc-cpp\test\src\main.cpp(44): TestSuite1::test
+      c:\path\to\test-cpp\test\src\main.cpp(103): error: assertWontThrow failed in TestSuite1::test
     ---
     Unhandled exception 'class std::logic_error'
       (message: 'exception message')

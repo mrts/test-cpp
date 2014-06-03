@@ -206,8 +206,8 @@ private:
 
     void outputFailureLocation()
     {
-        *this << TAB << TAB << "in " << END_LINE << TAB << TAB
-              << _file << "(" << _line << "): "
+        *this << TAB << TAB
+              << _file << "(" << _line << "): error: "
               << _assertType->name() << " failed in " << _function << END_LINE;
     }
 
