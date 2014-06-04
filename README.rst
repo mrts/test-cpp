@@ -12,7 +12,9 @@ framework:
 
 * extensible: you can fully customize test event handling (e.g. reporting
   output to a GUI window) by implementing your own test observer; see
-  `TextStreamTestView.h`_ for an example.
+  `TextStreamTestView.h`_ for an example;
+  
+* cross-platform: standard C++03 and `CMake`_ for building.
 
 ``test-cpp`` is `licenced under the Boost licence`_.
 
