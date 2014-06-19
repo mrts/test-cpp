@@ -52,7 +52,7 @@ added into Visual Studio solutions.
 The best way to run the test suite in a Visual Studio solution is to add the
 corresponding post-build event to the test-suite project (*Project →
 Properties → Build Events → Post-Build Event → Command Line:
-$(TargetDir)$(TargetFileName)*). The benefit of this approach is that you get
+"$(TargetDir)$(TargetFileName)"*). The benefit of this approach is that you get
 immediate red visual feedback on failure and can open failing tests by
 double-clicking on the failure location in the error list window as follows:
 
@@ -185,7 +185,7 @@ Use the following for colored output::
 
   #include <testcpp/StdOutView.h>
   Test::Controller &c = Test::Controller::instance();
-  c.setObserver(Test::observer_transferable_ptr(new Test::ColoredStdOutView));
+  c.setObserver(new Test::ColoredStdOutView);
 
 .. _CMake: http://www.cmake.org/
 .. _`ioc-cpp tests`: https://github.com/mrts/ioc-cpp/blob/master/test/src/main.cpp
