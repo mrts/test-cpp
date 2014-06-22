@@ -63,7 +63,7 @@ the test suite project in this case (*Project → Properties → C/C++ →
 Advanced → Use Full Paths: Yes (/FC)*). It is also helpful to always show the
 error list window if there are any unit test errors (*Tools → Options →
 Projects and Solutions → Always show Error List if build finishes with
-errors*) and show a message box from main if there are no errors::
+errors*) and show a message box from ``main`` if there are no errors::
 
   int result = c.run();
   if (result == 0)
