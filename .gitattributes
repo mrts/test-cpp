@@ -48,8 +48,9 @@
 *.png		binary
 
 # --- git files
-.gitignore 	text eol=lf
-.gitattributes 	text eol=lf
+.gitignore	text eol=lf
+.gitattributes	text eol=lf
+.clang-format	text eol=lf
 
 # --- Makefiles
 Makefile 	text eol=lf
