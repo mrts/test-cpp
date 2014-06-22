@@ -63,7 +63,13 @@ the test suite project in this case (*Project → Properties → C/C++ →
 Advanced → Use Full Paths: Yes (/FC)*). It is also helpful to always show the
 error list window if there are any unit test errors (*Tools → Options →
 Projects and Solutions → Always show Error List if build finishes with
-errors*).
+errors*) and show a message box from main if there are no errors::
+
+  int result = c.run();
+  if (result == 0)
+      MessageBox(NULL, L"All tests passed", L"Test OK",
+                 MB_OK | MB_ICONINFORMATION | MB_SYSTEMMODAL);
+  return result;
 
 The solution file from the `win32-asyncconnect project`_ can be used as the
 example for integrating ``test-cpp`` to solutions. It also contains a `test
