@@ -248,6 +248,7 @@ public:
     {
         if (!observer)
             throw std::runtime_error("Observer cannot be null");
+        deleteObserverIfOwningIt();
         _doesOwnObserver = takeOwnership;
         _observer = observer;
     }
@@ -292,6 +293,11 @@ private:
     Controller(const Controller&);
     Controller& operator=(const Controller&);
     ~Controller()
+    {
+        deleteObserverIfOwningIt();
+    }
+
+    void deleteObserverIfOwningIt()
     {
         if (_doesOwnObserver)
             delete _observer;
