@@ -1,14 +1,14 @@
 /**
  * A simple yet complete testing framework.
  *
- * Copyright (c) 2007, 2011, 2012 Mart Sõmermaa.
+ * Copyright (c) 2007-2014 Mart Sõmermaa.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the MIT License as published by the Open Source
  * Initiative group on the web at
  * http://opensource.org/licenses/MIT
  *
- * Version: 3.1.0
+ * Version: 4.0.0
  */
 
 #ifndef TESTCPP_H__
@@ -168,7 +168,7 @@ void assertWontThrowImpl(const std::string &label,
 
 #define assertWontThrow1(functionname__) \
     Test::assertWontThrowImpl<testsuite_class_type__, testmethod_type__> \
-    (#functionname__ " won't throw", \
+    (#functionname__ " won't throw exceptions", \
      *this, &testsuite_class_type__::functionname__, function__, __FILE__, __LINE__)
 
 #define assertWontThrow2(label__, functionname__) \

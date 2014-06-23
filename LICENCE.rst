@@ -1,4 +1,4 @@
-Copyright (c) 2012 Mart Sõmermaa
+Copyright (c) 2014 Mart Sõmermaa
 
 Boost Software License - Version 1.0 - August 17th, 2003
 
