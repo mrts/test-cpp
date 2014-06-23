@@ -103,12 +103,13 @@ void assertWontThrowImpl(const std::string &label,
 #define function__ __PRETTY_FUNCTION__
 #endif
 
-#define TESTCPP_TYPEDEF_TESTMETHOD(classname__) \
-    typedef void (classname__::*TestMethod)();
+#define TESTCPP_TYPEDEFS(classname__) \
+    typedef void (classname__::*testmethod_type__)(); \
+    typedef classname__ testsuite_class_type__;
 
 // http://stackoverflow.com/questions/5530505/why-does-this-variadic-argument-count-macro-fail-with-vc
 #define EXPAND_MACRO(x__) x__
-#define GET_MACRO_OVERLOAD(_1, _2, _3, _4, _5, _6, NAME, ...) NAME
+#define GET_MACRO_OVERLOAD(_1, _2, _3, NAME, ...) NAME
 
 #define assertTrue1(ok__) \
     Test::assertTrueImpl(#ok__, (ok__), function__, __FILE__, __LINE__)
@@ -117,7 +118,7 @@ void assertWontThrowImpl(const std::string &label,
     Test::assertTrueImpl(label__, (ok__), function__, __FILE__, __LINE__)
 
 #define assertTrue(...) \
-    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, _, \
+    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, \
             assertTrue2, assertTrue1)(__VA_ARGS__))
 
 
@@ -128,7 +129,7 @@ void assertWontThrowImpl(const std::string &label,
     Test::assertTrueImpl(label__, !(ok__), function__, __FILE__, __LINE__)
 
 #define assertFalse(...) \
-    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, _, \
+    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, \
             assertFalse2, assertFalse1)(__VA_ARGS__))
 
 
@@ -140,7 +141,7 @@ void assertWontThrowImpl(const std::string &label,
     Test::assertEqualImpl(label__, (a__), (b__), function__, __FILE__, __LINE__)
 
 #define assertEqual(...) \
-    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, \
+    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, \
             assertEqual2, assertEqual1)(__VA_ARGS__))
 
 
@@ -153,36 +154,31 @@ void assertWontThrowImpl(const std::string &label,
             function__, __FILE__, __LINE__)
 
 #define assertNotEqual(...) \
-    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, _, _, \
+    EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, \
             assertNotEqual2, assertNotEqual1)(__VA_ARGS__))
 
+#define assertThrows1(functionname__, exceptiontype__) \
+    Test::assertThrowsImpl<testsuite_class_type__, testmethod_type__, exceptiontype__> \
+    (#functionname__ " throws " #exceptiontype__, \
+     *this, &testsuite_class_type__::functionname__, function__, __FILE__, __LINE__)
 
-#define assertThrows1(suitetype__, functiontype__, exceptiontype__, \
-        object__, functionptr__) \
-    Test::assertThrowsImpl<suitetype__, functiontype__, exceptiontype__> \
-    (#functionptr__ " throws " #exceptiontype__, \
-     object__, functionptr__, function__, __FILE__, __LINE__)
-
-#define assertThrows2(label__, suitetype__, functiontype__, exceptiontype__, \
-        object__, functionptr__) \
-    Test::assertThrowsImpl<suitetype__, functiontype__, exceptiontype__> \
-    (label__, object__, functionptr__, function__, __FILE__, __LINE__)
+#define assertThrows2(label__, functionname__, exceptiontype__) \
+    Test::assertThrowsImpl<testsuite_class_type__, testmethod_type__, exceptiontype__> \
+    (label__, *this, &testsuite_class_type__::functionname__, function__, __FILE__, __LINE__)
 
 #define assertThrows(...) \
     EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, \
-			assertThrows2, assertThrows1)(__VA_ARGS__))
+            assertThrows2, assertThrows1)(__VA_ARGS__))
 
 
-#define assertWontThrow1(suitetype__, functiontype__, \
-        object__, functionptr__) \
-    Test::assertWontThrowImpl<suitetype__, functiontype__> \
-    (#functionptr__ " won't throw", \
-     object__, functionptr__, function__, __FILE__, __LINE__)
+#define assertWontThrow1(functionname__) \
+    Test::assertWontThrowImpl<testsuite_class_type__, testmethod_type__> \
+    (#functionname__ " won't throw", \
+     *this, &testsuite_class_type__::functionname__, function__, __FILE__, __LINE__)
 
-#define assertWontThrow2(label__, suitetype__, functiontype__, \
-        object__, functionptr__) \
-    Test::assertWontThrowImpl<suitetype__, functiontype__> \
-    (label__, object__, functionptr__, function__, __FILE__, __LINE__)
+#define assertWontThrow2(label__, functionname__) \
+    Test::assertWontThrowImpl<testsuite_class_type__, testmethod_type__> \
+    (label__, *this, &testsuite_class_type__::functionname__, function__, __FILE__, __LINE__)
 
 #define assertWontThrow(...) \
     EXPAND_MACRO(GET_MACRO_OVERLOAD(__VA_ARGS__, _, \

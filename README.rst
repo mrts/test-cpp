@@ -98,7 +98,7 @@ This input::
   class TestSuite1 : public Test::Suite
   {
   public:
-      TESTCPP_TYPEDEF_TESTMETHOD(TestSuite1)
+      TESTCPP_TYPEDEFS(TestSuite1)
 
       void testException()
       { throw std::logic_error("exception message"); }
@@ -119,24 +119,18 @@ This input::
           assertEqual("1 + 1 equals 3 (fails)", 1 + 1, 3);
 
           assertThrows("throws logic_error",
-                  TestSuite1, TestMethod, std::logic_error,
-                  *this, &TestSuite1::testException);
-          assertThrows(TestSuite1, TestMethod, std::logic_error,
-                  *this, &TestSuite1::testException);
+                  testException, std::logic_error);
+          assertThrows(testException, std::logic_error);
 
-          assertThrows("doesn't throw logic_error (fails)",
-                  TestSuite1, TestMethod, std::logic_error,
-                  *this, &TestSuite1::testNoException);
+          assertThrows("doesn't throw expeted logic_error (fails)",
+                  testNoException, std::logic_error);
 
           assertWontThrow("doesn't throw any exceptions",
-                  TestSuite1, TestMethod,
-                  *this, &TestSuite1::testNoException);
-          assertWontThrow(TestSuite1, TestMethod,
-                  *this, &TestSuite1::testNoException);
+                  testNoException);
+          assertWontThrow(testNoException);
 
-          assertWontThrow("throws logic_error",
-                  TestSuite1, TestMethod,
-                  *this, &TestSuite1::testException);
+          assertWontThrow("throws unexpected logic_error (fails)",
+                  testException);
 
           testException(); // unhandled exception is caught,
                            // but stops the testsuite
@@ -159,22 +153,22 @@ results in the following output::
     test '1 + 1 == 2 is true': ... OK
     test '1 + 1 == 2': ... OK
     test '1 + 1 == 3 is true (fails)': ... FAIL
-      c:\path\to\test-cpp\test\src\main.cpp(78): error: assertTrue failed in TestSuite1::test
+      c:\path\to\test-cpp\test\src\main.cpp(25): error: assertTrue failed in TestSuite1::test
     test '1 + 1 equals 2': ... OK
     test '1 + 1 == 2': ... OK
     test '1 + 1 equals 3 (fails)': ... FAIL
-      c:\path\to\test-cpp\test\src\main.cpp(83): error: assertEqual failed in TestSuite1::test
+      c:\path\to\test-cpp\test\src\main.cpp(30): error: assertEqual failed in TestSuite1::test
     test 'throws logic_error': ... OK
       (message: 'exception message')
-    test '&TestSuite1::testException throws std::logic_error': ... OK
+    test 'testException throws std::logic_error': ... OK
       (message: 'exception message')
-    test 'doesn't throw logic_error (fails)': ... FAIL
-      c:\path\to\test-cpp\test\src\main.cpp(93): error: assertThrows failed in TestSuite1::test
+    test 'doesn't throw expeted logic_error (fails)': ... FAIL
+      c:\path\to\test-cpp\test\src\main.cpp(37): error: assertThrows failed in TestSuite1::test
     test 'doesn't throw any exceptions': ... OK
-    test '&TestSuite1::testNoException won't throw': ... OK
-    test 'throws logic_error': ... FAIL: unexpected exception 'class std::logic_error'
+    test 'testNoException won't throw': ... OK
+    test 'throws unexpected logic_error (fails)': ... FAIL: unexpected exception 'class std::logic_error'
       (message: 'exception message')
-      c:\path\to\test-cpp\test\src\main.cpp(103): error: assertWontThrow failed in TestSuite1::test
+      c:\path\to\test-cpp\test\src\main.cpp(44): error: assertWontThrow failed in TestSuite1::test
     ---
     Unhandled exception 'class std::logic_error'
       (message: 'exception message')
@@ -183,6 +177,9 @@ results in the following output::
   Test run result: FAIL
 
 See `main test`_ or `ioc-cpp tests`_ for more details.
+
+The macro ``TESTCPP_TYPEDEFS(YourTestSuiteName)`` is required if you want to use
+``assertThrows`` or ``assertWontThrow``.
 
 Colored output
 ..............

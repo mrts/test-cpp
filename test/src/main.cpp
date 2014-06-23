@@ -6,19 +6,11 @@
 #include <string>
 #include <iostream>
 
-void testExceptionGlobal()
-{
-    throw std::logic_error("exception message");
-}
-
 class Object
 {
     UTILCPP_DISABLE_COPY(Object)
 
 public:
-    // must define method pointer signature when using C++03
-    TESTCPP_TYPEDEF_TESTMETHOD(Object)
-
     Object():
         _ctr(0)
     { }
@@ -38,8 +30,8 @@ class TestSuite1 : public Test::Suite
     UTILCPP_DISABLE_COPY(TestSuite1)
 
 public:
-    // must define method pointer signature when using C++03
-    TESTCPP_TYPEDEF_TESTMETHOD(TestSuite1)
+    // typedefs for assertThrows and assertWontThrow
+    TESTCPP_TYPEDEFS(TestSuite1)
 
     // setUp() happens in the constructor
     TestSuite1() :
@@ -98,37 +90,22 @@ public:
                 "abc", "abc");
         assertEqual("abc", "abc");
 
-        assertWontThrow("won't throw exceptions",
-                TestSuite1, TestMethod,
-                *this, &TestSuite1::testObjectWontThrow);
-        assertWontThrow(TestSuite1, TestMethod,
-                *this, &TestSuite1::testObjectWontThrow);
+        assertWontThrow("won't throw exceptions", testObjectWontThrow);
+        assertWontThrow(testObjectWontThrow);
 
-        assertThrows("throws logic_error",
-                TestSuite1, TestMethod, std::logic_error,
-                *this, &TestSuite1::testObjectThrows);
-        assertThrows(TestSuite1, TestMethod, std::logic_error,
-                *this, &TestSuite1::testObjectThrows);
+        assertThrows("throws logic_error", testObjectThrows, std::logic_error);
+        assertThrows(testObjectThrows, std::logic_error);
 
-        assertWontThrow("throws logic_error (must FAIL)",
-                TestSuite1, TestMethod,
-                *this, &TestSuite1::testObjectThrows);
-        assertWontThrow(TestSuite1, TestMethod,
-                *this, &TestSuite1::testObjectThrows);
+        assertWontThrow("throws logic_error (must FAIL)", testObjectThrows);
+        assertWontThrow(testObjectThrows);
 
         assertThrows("doesn't throw logic_error (must FAIL)",
-                TestSuite1, TestMethod, std::logic_error,
-                *this, &TestSuite1::testObjectWontThrow);
-        assertThrows(TestSuite1, TestMethod, std::logic_error,
-                *this, &TestSuite1::testObjectWontThrow);
+                testObjectWontThrow, std::logic_error);
+        assertThrows(testObjectWontThrow, std::logic_error);
 
-        // You can also use object-under-test methods directly.
-        // This assert fails as the exception thrown is not std::runtime_error.
+        // Expect failure as the exception thrown is not std::runtime_error.
         assertThrows("throws logic_error instead of runtime_error (must FAIL)",
-                Object, Object::TestMethod, std::runtime_error,
-                _object, &Object::instanceMethodThrowsException);
-        assertThrows(Object, Object::TestMethod, std::runtime_error,
-                _object, &Object::instanceMethodThrowsException);
+                testObjectThrows, std::runtime_error);
 
         // The unhandled exception is caught, but stops the testsuite.
         testObjectThrows();
