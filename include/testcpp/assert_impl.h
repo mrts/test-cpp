@@ -1,49 +1,11 @@
 #ifndef TESTCPP_ASSERT_IMPL_H__
 #define TESTCPP_ASSERT_IMPL_H__
 
-class AssertTrue : public AssertType
-{
-public:
-    // or just use lowcase classes and typeid().name?
-    virtual std::string name() { return "assertTrue"; }
-    virtual std::string label() { return ""; }
-};
-
-class AssertEqual : public AssertType
-{
-public:
-    virtual std::string name() { return "assertEqual"; }
-    virtual std::string label() { return ""; }
-};
-
-class AssertNotEqual : public AssertType
-{
-public:
-    virtual std::string name() { return "assertNotEqual"; }
-    virtual std::string label() { return ""; }
-};
-
-class AssertThrows : public AssertType
-{
-public:
-    virtual std::string name() { return "assertThrows"; }
-    virtual std::string label() { return ""; }
-};
-
-class AssertWontThrow : public AssertType
-{
-public:
-    virtual std::string name() { return "assertWontThrow"; }
-    virtual std::string label() { return ""; }
-};
-
-
 inline void assertTrueImpl(const std::string& label, bool ok,
         const char* const function, const char* const file, int line)
 {
     Controller &c = Controller::instance();
-    asserttype_transferable_ptr assertType(new AssertTrue());
-    c.beforeAssert(assertType, label, function, file, line);
+    c.beforeAssert("assertTrue", label, function, file, line);
     c.afterAssert(ok);
 }
 
@@ -53,8 +15,7 @@ void assertEqualImpl(const std::string& label,
         const char* const function, const char* const file, int line)
 {
     Controller &c = Controller::instance();
-    asserttype_transferable_ptr assertType(new AssertEqual());
-    c.beforeAssert(assertType, label, function, file, line);
+    c.beforeAssert("assertEqual", label, function, file, line);
 
     bool ok = (a == b);
 
@@ -68,8 +29,7 @@ void assertNotEqualImpl(const std::string& label,
         const char* const function, const char* const file, int line)
 {
     Controller &c = Controller::instance();
-    asserttype_transferable_ptr assertType(new AssertNotEqual());
-    c.beforeAssert(assertType, label, function, file, line);
+    c.beforeAssert("assertNotEqual", label, function, file, line);
 
     bool ok = (a != b);
 
@@ -85,8 +45,7 @@ void assertThrowsImpl(const std::string &label,
         const char* const function, const char* const file, int line)
 {
     Controller& c = Controller::instance();
-    asserttype_transferable_ptr assertType(new AssertThrows());
-    c.beforeAssert(assertType, label, function, file, line);
+    c.beforeAssert("assertThrows", label, function, file, line);
 
     try {
         // call object method
@@ -108,8 +67,7 @@ void assertWontThrowImpl(const std::string &label,
         const char* const function, const char* const file, int line)
 {
     Controller& c = Controller::instance();
-    asserttype_transferable_ptr assertType(new AssertWontThrow());
-    c.beforeAssert(assertType, label, function, file, line);
+    c.beforeAssert("assertWontThrow", label, function, file, line);
 
     try {
         ((testSuiteObject).*(testFunction))();

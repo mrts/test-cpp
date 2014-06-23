@@ -101,20 +101,15 @@ public:
               << numErrs << " non-exception errors" << END_LINE;
     }
 
-    virtual void onAssertBegin(asserttype_transferable_ptr& assertType,
+    virtual void onAssertBegin(const std::string& assertType,
         const std::string& testlabel,
         const char* const function, const char* const file, int line)
     {
-#ifdef UTILCPP_HAVE_CPP11
-        _assertType = std::move(assertType);
-#else
         _assertType = assertType;
-#endif
         _function = function;
         _file = file;
         _line = line;
-        *this << TAB << "test " << _assertType->label()
-              <<"'" << testlabel << "': ... ";
+        *this << TAB << "test '" << testlabel << "': ... ";
     }
 
     virtual void onAssertEnd(bool ok)
@@ -208,10 +203,10 @@ private:
     {
         *this << TAB << TAB
               << _file << "(" << _line << "): error: "
-              << _assertType->name() << " failed in " << _function << END_LINE;
+              << _assertType << " failed in " << _function << END_LINE;
     }
 
-    asserttype_scoped_ptr _assertType;
+    std::string _assertType;
     std::string _function;
     std::string _file;
     int _line;
